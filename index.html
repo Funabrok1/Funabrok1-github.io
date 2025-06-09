@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Diagnóstico de Blindaje Empresarial</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- PDF Generation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(rgba(12, 15, 26, 0.7), rgba(12, 15, 26, 0.7)), url('https://i.ibb.co/mCCfbmt8/fondo-envision.webp');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            cursor: pointer;
+            border-radius: 50%;
+            margin-top: -6px;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .form-step { display: none; }
+        .form-step-active { display: block; }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3b82f6;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Estilos para el contenido del reporte */
+        #aiAnalysisOutput h1, #aiAnalysisOutput h2, #aiAnalysisOutput h3,
+        #aiAnalysisOutput table, #aiAnalysisOutput ul, #aiAnalysisOutput ol {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+       /* Estilo para los textareas autoajustables */
+        textarea {
+            resize: none;
+            overflow-y: hidden;
+    </style>
+</head>
+<body class="antialiased text-gray-800">
+
+    <div id="diagnostico-container" class="container mx-auto p-4 sm:p-8 max-w-4xl">
+        
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div class="p-8">
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 text-center">Diagnóstico de Blindaje Empresarial</h1>
+                <p class="text-center text-gray-600 mt-2">Complete este formulario para analizar las áreas clave de su negocio.</p>
+            </div>
+
+            <div class="px-8 pb-4">
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-in-out" style="width: 20%"></div>
+                </div>
+                <div id="stepCounter" class="text-center text-sm text-gray-500 mt-2">Paso 1 de 5</div>
+            </div>
+
+            <form id="diagnosisForm" class="p-8 space-y-8" novalidate>
+                <!-- Step 1: Contexto General -->
+                <div id="step-1" class="form-step form-step-active">
+                    <h2 class="text-xl font-semibold mb-6 border-l-4 border-blue-500 pl-4">Fase 1: Trayectoria y Contexto</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label for="puesto_usuario" class="block text-sm font-medium text-gray-700 mb-1">Su rol o posición actual</label><input type="text" id="puesto_usuario" name="puesto_usuario" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Director General" required></div>
+                        <div><label for="antiguedad_empresa" class="block text-sm font-medium text-gray-700 mb-1">¿Cuándo empezó operaciones su empresa?</label><input type="text" id="antiguedad_empresa" name="antiguedad_empresa" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Hace 5 años, en 2019" required></div>
+                        <div><label for="numero_empleados" class="block text-sm font-medium text-gray-700 mb-1">Número de empleados actuales</label><input type="number" id="numero_empleados" name="numero_empleados" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: 25" required></div>
+                        <div class="md:col-span-2"><label for="mayor_reto_superado" class="block text-sm font-medium text-gray-700 mb-1">Mayor reto que han enfrentado y cómo lo superaron</label><textarea id="mayor_reto_superado" name="mayor_reto_superado" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Describa brevemente..." required></textarea></div>
+                        <div class="md:col-span-2"><label for="hito_mas_importante" class="block text-sm font-medium text-gray-700 mb-1">Mayor aprendizaje o hito más importante en su crecimiento</label><textarea id="hito_mas_importante" name="hito_mas_importante" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Describa brevemente..." required></textarea></div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Gobierno, Marketing y Posicionamiento -->
+                <div id="step-2" class="form-step">
+                    <h2 class="text-xl font-semibold mb-4 border-l-4 border-blue-500 pl-4">Fase 2: Gobierno, Marketing y Posicionamiento</h2>
+                    <h3 class="text-lg font-medium text-gray-800 mt-6 mb-4">Gobierno Corporativo y Formalidad</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label for="nivel_formalidad_corporativa" class="block text-sm font-medium text-gray-700 mb-2">Nivel de formalidad (1=Bajo, 10=Alto)</label><input type="range" id="nivel_formalidad_corporativa" name="nivel_formalidad_corporativa" min="1" max="10" value="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"><div class="text-center text-gray-600 mt-1"><span id="rangeValue">5</span></div></div>
+                        <div><label for="existencia_contratos" class="block text-sm font-medium text-gray-700 mb-1">¿Cuentan con contratos claros?</label><select id="existencia_contratos" name="existencia_contratos" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="si">Sí, con proveedores, clientes y empleados</option><option value="parcialmente">Parcialmente</option><option value="no">No, son informales</option></select></div>
+                        <div><label for="propiedad_intelectual_registrada" class="block text-sm font-medium text-gray-700 mb-1">¿Han registrado patentes o marcas?</label><select id="propiedad_intelectual_registrada" name="propiedad_intelectual_registrada" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="si">Sí</option><option value="no">No</option><option value="en_proceso">En proceso</option></select></div>
+                        <div class="md:col-span-2"><label for="gestion_compliance" class="block text-sm font-medium text-gray-700 mb-1">Gestión de cumplimiento normativo (Compliance)</label><textarea id="gestion_compliance" name="gestion_compliance" rows="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Manual interno, asesor externo..." required></textarea></div>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-800 mt-6 mb-4">Marketing y Posicionamiento</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label for="giro_principal" class="block text-sm font-medium text-gray-700 mb-1">Giro principal del negocio</label><textarea id="giro_principal" name="giro_principal" rows="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Manufactura, Servicios TI, Retail..." required></textarea></div>
+                        <div><label for="posicionamiento_mercado" class="block text-sm font-medium text-gray-700 mb-1">Posicionamiento frente a la competencia</label><textarea id="posicionamiento_mercado" name="posicionamiento_mercado" rows="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Líder en precio, nicho de alta calidad..." required></textarea></div>
+                        <div class="md:col-span-2"><label for="estrategias_marketing" class="block text-sm font-medium text-gray-700 mb-1">Estrategias de marketing (digital o tradicional)</label><textarea id="estrategias_marketing" name="estrategias_marketing" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Redes sociales, SEO, ferias comerciales..." required></textarea></div>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Estructura, Socios y Protección -->
+                <div id="step-3" class="form-step">
+                    <h2 class="text-xl font-semibold mb-4 border-l-4 border-blue-500 pl-4">Fase 3: Estructura, Socios y Protección</h2>
+                    <h3 class="text-lg font-medium text-gray-800 mt-6 mb-4">Estructura y Socios</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label for="tipo_empresa" class="block text-sm font-medium text-gray-700 mb-1">Tipo de empresa</label><select id="tipo_empresa" name="tipo_empresa" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="familiar">Familiar</option><option value="socios_externos">Con socios externos</option><option value="unico_dueno">Único dueño</option></select></div>
+                        <div id="sociosFields" class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 hidden">
+                            <div><label for="numero_socios" class="block text-sm font-medium text-gray-700 mb-1">Número de socios</label><input type="number" id="numero_socios" name="numero_socios" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: 3"></div>
+                            <div><label for="acuerdos_entre_socios" class="block text-sm font-medium text-gray-700 mb-1">¿Existen acuerdos formales entre socios?</label><select id="acuerdos_entre_socios" name="acuerdos_entre_socios" class="w-full px-4 py-2 border border-gray-300 rounded-lg"><option value="">Seleccione</option><option value="si_formales">Sí, formales y por escrito</option><option value="informales">Sí, pero son informales</option><option value="no">No existen acuerdos</option></select></div>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-800 mt-6 mb-4">Protección y Continuidad del Negocio</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2"><label for="impacto_ausencia_persona_clave" class="block text-sm font-medium text-gray-700 mb-1">Impacto de la ausencia inesperada de una persona clave</label><textarea id="impacto_ausencia_persona_clave" name="impacto_ausencia_persona_clave" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Describa el impacto en la operación, finanzas, etc." required></textarea></div>
+                        <div class="md:col-span-2"><label for="lista_personas_clave" class="block text-sm font-medium text-gray-700 mb-1">Personas indispensables para la operación</label><textarea id="lista_personas_clave" name="lista_personas_clave" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Liste nombres y/o puestos..." required></textarea></div>
+                        <div><label for="costo_estimado_perdida_clave" class="block text-sm font-medium text-gray-700 mb-1">Costo financiero estimado por su ausencia</label><input type="text" id="costo_estimado_perdida_clave" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: $500,000 MXN mensuales" required></div>
+                        <div><label for="plan_contingencia_existente" class="block text-sm font-medium text-gray-700 mb-1">¿Plan sucesorio o fondo de contingencia?</label><select id="plan_contingencia_existente" name="plan_contingencia_existente" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="si_completo">Sí, completo y fondeado</option><option value="si_basico">Sí, pero no está fondeado</option><option value="no">No, no tenemos</option></select></div>
+                        <div><label for="tipo_prestaciones_empleados" class="block text-sm font-medium text-gray-700 mb-1">Prestaciones que ofrecen a empleados</label><textarea id="tipo_prestaciones_empleados" name="tipo_prestaciones_empleados" rows="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Solo las de ley, SGMM, Vales..." required></textarea></div>
+                        <div><label for="gestion_rotacion_personal" class="block text-sm font-medium text-gray-700 mb-1">¿Cómo gestionan la rotación de talento clave?</label><textarea id="gestion_rotacion_personal" name="gestion_rotacion_personal" rows="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: No tenemos plan, bonos de retención..." required></textarea></div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Situación Financiera y Fiscal -->
+                <div id="step-4" class="form-step">
+                     <h2 class="text-xl font-semibold mb-6 border-l-4 border-blue-500 pl-4">Fase 4: Eficiencia Financiera y Fiscal</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label for="situacion_utilidad_fiscal" class="block text-sm font-medium text-gray-700 mb-1">Situación de su utilidad fiscal</label><select id="situacion_utilidad_fiscal" name="situacion_utilidad_fiscal" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="estable">Estable</option><option value="variable">Variable</option><option value="creciente">Creciente</option><option value="baja">Baja o en pérdidas</option></select></div>
+                        <div><label for="gestion_flujo_efectivo" class="block text-sm font-medium text-gray-700 mb-1">¿Tienen desafíos en su flujo de efectivo?</label><select id="gestion_flujo_efectivo" name="gestion_flujo_efectivo" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="si">Sí, frecuentemente</option><option value="ocasionalmente">Ocasionalmente</option><option value="no">No, es saludable</option></select></div>
+                        <div><label for="conocimiento_coeficiente_utilidad" class="block text-sm font-medium text-gray-700 mb-1">¿Conocen su coeficiente de utilidad?</label><select id="conocimiento_coeficiente_utilidad" name="conocimiento_coeficiente_utilidad" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="si">Sí, y lo monitoreamos</option><option value="si_pero_no">Sí, pero no lo usamos</option><option value="no">No lo conocemos</option></select></div>
+                        <div><label for="uso_principal_utilidades" class="block text-sm font-medium text-gray-700 mb-1">Uso principal de las utilidades</label><select id="uso_principal_utilidades" name="uso_principal_utilidades" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="reinversion">Reinvertir</option><option value="dividendos">Distribuir dividendos</option><option value="fondo_reserva">Guardar para imprevistos</option><option value="pago_deudas">Pagar deudas</option><option value="no_definido">No definido</option></select></div>
+                        <div><label for="metodo_pago_directivos" class="block text-sm font-medium text-gray-700 mb-1">Compensación a socios/directores</label><select id="metodo_pago_directivos" name="metodo_pago_directivos" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="sueldos">Sueldos</option><option value="honorarios">Honorarios</option><option value="dividendos">Dividendos</option><option value="mixto">Mixto</option><option value="no_definido">No se tiene definido</option></select></div>
+                        <div class="md:col-span-2"><label for="estrategias_fiscales_actuales" class="block text-sm font-medium text-gray-700 mb-1">Estrategia actual para reducir carga de ISR o PTU</label><textarea id="estrategias_fiscales_actuales" name="estrategias_fiscales_actuales" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Planes de pensiones, seguros deducibles, etc. Si no aplica, escriba 'Ninguna'." required></textarea></div>
+                    </div>
+                </div>
+                
+                <!-- Step 5: Visión a Futuro y Liquidez -->
+                <div id="step-5" class="form-step">
+                    <h2 class="text-xl font-semibold mb-6 border-l-4 border-blue-500 pl-4">Fase 5: Proyectos Futuros y Liquidez</h2>
+                    <div class="grid grid-cols-1 gap-6">
+                        <div><label for="proyectos_futuros_empresa" class="block text-sm font-medium text-gray-700 mb-1">Proyectos importantes para los próximos 3-5 años</label><textarea id="proyectos_futuros_empresa" name="proyectos_futuros_empresa" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Expansión, compra de maquinaria, salida de socio..." required></textarea></div>
+                        <div><label for="metodo_fondeo_proyectos" class="block text-sm font-medium text-gray-700 mb-1">¿Cómo están fondeando o planean fondear esos planes?</label><select id="metodo_fondeo_proyectos" name="metodo_fondeo_proyectos" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="utilidades">Utilidades</option><option value="credito">Crédito</option><option value="inversionistas">Inversionistas</option><option value="estrategia_liquidez">Construyendo liquidez estratégica</option><option value="no_definido">No definido</option></select></div>
+                        <div><label for="reservas_empresariales" class="block text-sm font-medium text-gray-700 mb-1">¿Cuentan con fondos o reservas empresariales específicas?</label><select id="reservas_empresariales" name="reservas_empresariales" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="si">Sí, para proyectos específicos</option><option value="si_generales">Sí, pero son generales (no específicas)</option><option value="no">No, no contamos con reservas</option></select></div>
+                    </div>
+                </div>
+                
+                <!-- Navigation Buttons -->
+                <div class="relative">
+                    <div id="validationMessage" class="hidden text-center text-red-600 mb-4 text-sm">Por favor, complete todos los campos requeridos antes de continuar.</div>
+                    <div class="flex justify-between pt-4 border-t">
+                        <button type="button" id="prevBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg transition-colors">Anterior</button>
+                        <button type="button" id="nextBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">Siguiente</button>
+                        <button type="submit" id="submitBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition-colors hidden">Generar Diagnóstico</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div id="reportModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white rounded-lg shadow-xl p-6 sm:p-8 max-w-4xl w-full text-left transform transition-all max-h-[90vh] flex flex-col">
+            <!-- Modal Header -->
+            <div id="reportHeader"><h3 class="text-xl font-bold text-gray-900">Reporte de Diagnóstico Empresarial</h3><p class="text-gray-600 mt-1">Análisis integral y recomendaciones estratégicas.</p></div>
+            
+            <!-- Loading State -->
+            <div id="loadingState" class="py-16 text-center hidden"><div class="loader mx-auto"></div><p class="mt-4 text-gray-600">Generando análisis, por favor espere...</p></div>
+
+            <!-- Report Content -->
+            <div id="reportContent" class="mt-4 space-y-6 overflow-y-auto hidden">
+                <!-- User's Diagnosis Summary --><div id="diagnosisSummaryContainer"><h4 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-3">Resumen del Diagnóstico</h4><div id="diagnosisSummaryOutput" class="text-sm space-y-2"></div></div>
+                <!-- AI Analysis -->
+                <div id="aiAnalysisContainer">
+                    <h4 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-3">Análisis y Recomendación de IA</h4>
+                    <div id="timelineContainer" class="mb-8 hidden"></div> <!-- NEW TIMELINE CONTAINER -->
+                    <div id="aiAnalysisOutput" class="prose max-w-none text-gray-700"></div>
+                </div>
+                
+                 <!-- Clarification Questions State -->
+                <div id="clarificationState" class="mt-4 space-y-6 overflow-y-auto hidden">
+                    <h4 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-3">Preguntas de Aclaración</h4>
+                    <p class="text-sm text-gray-600">La IA necesita más información para proporcionar un análisis preciso. Por favor, responda las siguientes preguntas:</p>
+                    <form id="clarificationForm" class="space-y-4">
+                        <!-- Questions will be dynamically inserted here -->
+                    </form>
+                    <button type="button" id="resubmitBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg">Reenviar y Generar Análisis</button>
+                </div>
+
+                <!-- Monday.com Form Section -->
+                <div id="supportFlowContainer" class="pt-6 mt-6 border-t hidden">
+                    <div id="downloadPrompt" class="text-center p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-2">Siguiente Paso</h4>
+                        <p class="text-sm text-gray-600">Para solicitar asesoría, primero debe descargar el reporte en PDF.</p>
+                    </div>
+
+                    <div id="mondayFormContainer" class="text-center hidden mt-4">
+                         <h4 class="text-lg font-semibold text-gray-800 mb-2">Solicitud de Asesoría</h4>
+                         <p class="text-sm text-gray-600 mb-4">¡Excelente! Ahora que tiene su reporte, puede contactar a un asesor para implementarlo.</p>
+                         <a href="https://forms.monday.com/forms/ca72b435abc536283ccfc0a2a5504466?r=use1" target="_blank" class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg text-center transition-colors">
+                            Contactar a un Asesor
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Error Message --><div id="errorState" class="text-center py-10 hidden"><p class="text-red-600">Lo sentimos, ha ocurrido un error al generar el reporte. Por favor, intente de nuevo.</p></div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="mt-6 pt-4 border-t text-right">
+                <button type="button" id="downloadPdfBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg hidden">Descargar PDF</button>
+                <button id="closeModalBtn" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:text-sm">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- DOM Elements ---
+            const form = document.getElementById('diagnosisForm');
+            const formSteps = Array.from(document.querySelectorAll('.form-step'));
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            const progressBar = document.getElementById('progressBar');
+            const stepCounter = document.getElementById('stepCounter');
+            const validationMessage = document.getElementById('validationMessage');
+            
+            const reportModal = document.getElementById('reportModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const loadingState = document.getElementById('loadingState');
+            const reportContent = document.getElementById('reportContent');
+            const errorState = document.getElementById('errorState');
+            const diagnosisSummaryOutput = document.getElementById('diagnosisSummaryOutput');
+            const aiAnalysisOutput = document.getElementById('aiAnalysisOutput');
+            const timelineContainer = document.getElementById('timelineContainer');
+            const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+            
+            const clarificationState = document.getElementById('clarificationState');
+            const clarificationForm = document.getElementById('clarificationForm');
+            const resubmitBtn = document.getElementById('resubmitBtn');
+            
+            const supportFlowContainer = document.getElementById('supportFlowContainer');
+            const downloadPrompt = document.getElementById('downloadPrompt');
+            const mondayFormContainer = document.getElementById('mondayFormContainer');
+            
+            let currentStep = 0;
+            const totalSteps = formSteps.length;
+            let initialPrompt = '';
+            const fieldLabels = {
+                'puesto_usuario': 'Rol o posición actual', 'antiguedad_empresa': 'Antigüedad de la empresa', 'numero_empleados': 'Número de empleados',
+                'mayor_reto_superado': 'Mayor reto superado', 'hito_mas_importante': 'Mayor aprendizaje o hito', 'nivel_formalidad_corporativa': 'Nivel de formalidad (1-10)',
+                'existencia_contratos': 'Existencia de contratos claros', 'propiedad_intelectual_registrada': 'Registro de patentes o marcas', 'gestion_compliance': 'Gestión de cumplimiento normativo',
+                'giro_principal': 'Giro principal del negocio', 'posicionamiento_mercado': 'Posicionamiento frente a competencia', 'estrategias_marketing': 'Estrategias de marketing',
+                'tipo_empresa': 'Tipo de empresa', 'numero_socios': 'Número de socios', 'acuerdos_entre_socios': 'Acuerdos formales entre socios',
+                'impacto_ausencia_persona_clave': 'Impacto por ausencia de persona clave', 'lista_personas_clave': 'Personas indispensable para la operación',
+                'costo_estimado_perdida_clave': 'Costo financiero estimado por su ausencia', 'plan_contingencia_existente': 'Plan de sucesión o fondo de contingencia',
+                'tipo_prestaciones_empleados': 'Prestaciones a empleados', 'gestion_rotacion_personal': 'Gestión de rotación de talento', 'situacion_utilidad_fiscal': 'Situación de la utilidad fiscal',
+                'gestion_flujo_efectivo': 'Desafíos en flujo de efectivo', 'conocimiento_coeficiente_utilidad': 'Conocimiento del coeficiente de utilidad', 'uso_principal_utilidades': 'Uso principal de las utilidades',
+                'metodo_pago_directivos': 'Método de compensación a directivos/socios', 'estrategias_fiscales_actuales': 'Estrategia actual para reducir carga de ISR o PTU',
+                'proyectos_futuros_empresa': 'Proyectos importantes para los próximos 3-5 años', 'metodo_fondeo_proyectos': 'Método de fondeo para proyectos', 'reservas_empresariales': 'Existencia de fondos o reservas empresariales'
+            };
+
+            function generateGeminiPrompt(data) {
+                const instructions = `Eres un consultor experto en negocios, estrategias de marketing, gobierno corporativo, fiscalidad, impuestos y diseño de estrategias de seguros utilizando herramientas como pólizas de hombre clave y seguros de gastos médicos colectivos. A partir de un diagnóstico que te compartiré, quiero que realices un análisis integral y una recomendación personalizada que incluya las siguientes secciones:\n\n1. Diagnóstico interpretado (resumen ejecutivo con lenguaje técnico accesible).\n2. Identificación de oportunidades estratégicas en las áreas de:\n   - Modelo de negocio\n   - Estrategia de marketing\n   - Gobierno corporativo\n   - Planificación fiscal e impositiva\n   - Estrategia de seguros (hombre clave / GMC)\n3. Plan de acción priorizado en etapas (corto, mediano y largo plazo).\n4. Recomendaciones específicas para implementar cada propuesta estratégica.\n5. Riesgos y mitigaciones asociados a cada estrategia.\n\nAntes de responder, piensa paso a paso cómo se interrelacionan las áreas y cómo pueden fortalecerse mutuamente. Usa un lenguaje profesional, con términos de negocios y enfoque consultivo. No hagas suposiciones sin sustento en el diagnóstico que te voy a proporcionar. Si necesitas más información, haz preguntas específicas antes de emitir recomendaciones.\n\n---DATOS_ESTRUCTURADOS---\nAl final de TODA tu respuesta, añade un bloque JSON que contenga únicamente los conceptos clave del plan de acción. El JSON debe tener el siguiente formato: \`\`\`json\n{"timelineData": {"corto_plazo": ["Concepto 1", "Concepto 2"], "mediano_plazo": ["Concepto 3"], "largo_plazo": ["Concepto 4"]}}\n\`\`\`\n\n--- DIAGNÓSTICO EMPRESARIAL RECOPILADO ---`;
+                let diagnosisData = "\n";
+                for (const key in fieldLabels) {
+                    if (data[key]) { diagnosisData += `- **${fieldLabels[key]}:** ${data[key]}\n`; }
+                }
+                return `${instructions}${diagnosisData}`;
+            }
+
+            function generateSummaryHtml(data) {
+                let html = '';
+                for (const key in fieldLabels) {
+                    if (data[key]) { html += `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2"><dt class="font-medium text-gray-600">${fieldLabels[key]}:</dt><dd class="text-gray-800">${data[key]}</dd></div>`; }
+                }
+                return html;
+            }
+
+            function showStep(stepIndex) {
+                formSteps.forEach(step => step.classList.remove('form-step-active'));
+                formSteps[stepIndex].classList.add('form-step-active');
+                const progress = ((stepIndex + 1) / totalSteps) * 100;
+                progressBar.style.width = `${progress}%`;
+                stepCounter.textContent = `Paso ${stepIndex + 1} de ${totalSteps}`;
+                prevBtn.style.display = stepIndex === 0 ? 'none' : 'inline-block';
+                nextBtn.style.display = stepIndex === totalSteps - 1 ? 'none' : 'inline-block';
+                submitBtn.style.display = stepIndex === totalSteps - 1 ? 'inline-block' : 'none';
+            }
+            
+            function formatAIResponse(text) {
+                let html = text
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;");
+
+                const tableRegex = /(\|.*\|(?:\r\n|\n)?)+/g;
+                html = html.replace(tableRegex, (tableMatch) => {
+                    const rows = tableMatch.trim().split('\n').filter(r => r.includes('|'));
+                    if (rows.length < 2 || !rows[1].includes('---')) return tableMatch;
+                    
+                    let tableHtml = '<div class="overflow-x-auto my-4"><table class="min-w-full divide-y divide-gray-300 border rounded-lg">';
+                    const headerCells = rows[0].split('|').slice(1, -1);
+                    tableHtml += '<thead class="bg-gray-50"><tr>';
+                    headerCells.forEach(cell => {
+                        tableHtml += `<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${cell.trim()}</th>`;
+                    });
+                    tableHtml += '</tr></thead>';
+                    
+                    tableHtml += '<tbody class="bg-white divide-y divide-gray-200">';
+                    rows.slice(2).forEach(row => {
+                        const rowCells = row.split('|').slice(1, -1);
+                        tableHtml += '<tr>';
+                        rowCells.forEach(cell => {
+                            tableHtml += `<td class="px-4 py-4 text-sm text-gray-700">${cell.trim()}</td>`;
+                        });
+                        tableHtml += '</tr>';
+                    });
+                    tableHtml += '</tbody></table></div>';
+                    return tableHtml;
+                });
+
+                html = html.replace(/^### (.*$)/gim, '<h3 class="text-lg font-semibold mt-4 mb-2">$1</h3>');
+                html = html.replace(/^## (.*$)/gim, '<h2 class="text-xl font-bold mt-5 mb-3 border-b pb-2">$1</h2>');
+                
+                html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                
+                html = html.replace(/\n/g, '<br>');
+
+                html = html.replace(/<br>\s*-\s/g, '<li class="ml-5 list-disc">');
+                html = html.replace(/<br>\s*\d+\.\s/g, (match) => `<li class="ml-5 list-decimal" value="${match.match(/\d+/)[0]}">`);
+
+                return html;
+            }
+            
+            function generateTimeline(timelineData) {
+                timelineContainer.innerHTML = '';
+                if (!timelineData || typeof timelineData !== 'object') {
+                    timelineContainer.classList.add('hidden');
+                    return;
+                }
+
+                const phases = [
+                    { name: 'Corto Plazo', key: 'corto_plazo' },
+                    { name: 'Mediano Plazo', key: 'mediano_plazo' },
+                    { name: 'Largo Plazo', key: 'largo_plazo' }
+                ];
+                
+                let hasContent = false;
+                let timelineHtml = '<h3 class="text-xl font-bold mb-6">Línea de Tiempo del Plan de Acción</h3><div class="space-y-8">';
+
+                phases.forEach(phase => {
+                    const concepts = timelineData[phase.key];
+                    if (concepts && Array.isArray(concepts) && concepts.length > 0) {
+                        hasContent = true;
+                        timelineHtml += `
+                            <div>
+                                <h4 class="text-lg font-semibold text-blue-600 mb-4">${phase.name}</h4>
+                                <div class="relative pl-8 border-l-2 border-blue-300">`;
+                        
+                        concepts.forEach((concept) => {
+                            timelineHtml += `
+                                    <div class="mb-5 relative">
+                                        <div class="absolute w-4 h-4 bg-white border-2 border-blue-600 rounded-full" style="left: -2.3rem; top: 0.25rem;"></div>
+                                        <p class="font-medium text-gray-800">${concept}</p>
+                                    </div>`;
+                        });
+
+                        timelineHtml += `</div></div>`;
+                    }
+                });
+                
+                timelineHtml += '</div>';
+                
+                if (hasContent) {
+                    timelineContainer.innerHTML = timelineHtml;
+                    timelineContainer.classList.remove('hidden');
+                } else {
+                    timelineContainer.classList.add('hidden');
+                }
+            }
+
+            function manageModalView(view) {
+                loadingState.classList.add('hidden');
+                reportContent.classList.add('hidden');
+                clarificationState.classList.add('hidden');
+                errorState.classList.add('hidden');
+                supportFlowContainer.classList.add('hidden');
+                downloadPdfBtn.classList.add('hidden');
+                
+                if(view === 'loading') loadingState.classList.remove('hidden');
+                if(view === 'report') {
+                    reportContent.classList.remove('hidden');
+                    downloadPdfBtn.classList.remove('hidden');
+                    supportFlowContainer.classList.remove('hidden');
+                }
+                if(view === 'clarification') clarificationState.classList.remove('hidden');
+                if(view === 'error') errorState.classList.remove('hidden');
+            }
+
+            async function getAIResponse(prompt) {
+                const apiKey = "AIzaSyAjagQQv21CcuaFAuXS7QJ-_mzDuI-PkBk";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+
+                if (!response.ok) {
+                    throw new Error(`API call failed: ${response.status}`);
+                }
+                const result = await response.json();
+                return result.candidates?.[0]?.content?.parts?.[0]?.text || "No se pudo obtener una respuesta de la IA.";
+            }
+
+            function displayClarificationQuestions(questionsText) {
+                clarificationForm.innerHTML = '';
+                const questions = questionsText.split('\n').filter(line => /^\s*\d+\.\s/.test(line));
+                
+                questions.forEach((q, index) => {
+                    const questionId = `clarification_answer_${index}`;
+                    const questionLabel = q.replace(/^\s*\d+\.\s*/, '');
+                    
+                    const formGroup = document.createElement('div');
+                    formGroup.className = 'space-y-1';
+                    
+                    const label = document.createElement('label');
+                    label.htmlFor = questionId;
+                    label.className = 'block text-sm font-medium text-gray-700';
+                    label.textContent = questionLabel;
+                    
+                    const textarea = document.createElement('textarea');
+                    textarea.id = questionId;
+                    textarea.name = questionId;
+                    textarea.rows = 2;
+                    textarea.className = 'w-full px-3 py-2 border border-gray-300 rounded-md';
+                    textarea.dataset.originalQuestion = q;
+                    
+                    formGroup.appendChild(label);
+                    formGroup.appendChild(textarea);
+                    clarificationForm.appendChild(formGroup);
+                });
+
+                manageModalView('clarification');
+            }
+            
+            async function downloadReportAsPDF() {
+                const { jsPDF } = window.jspdf;
+                const reportElement = document.getElementById('reportContent');
+                const downloadButton = document.getElementById('downloadPdfBtn');
+                
+                downloadButton.innerText = 'Generando...';
+                downloadButton.disabled = true;
+
+                try {
+                    const doc = new jsPDF({
+                        orientation: 'p',
+                        unit: 'pt',
+                        format: 'a4'
+                    });
+                    
+                    await doc.html(reportElement, {
+                        callback: function (doc) {
+                            doc.save('reporte-diagnostico-empresarial.pdf');
+                            downloadPrompt.classList.add('hidden');
+                            mondayFormContainer.classList.remove('hidden');
+                        },
+                        margin: [20, 20, 20, 20],
+                        autoPaging: 'text',
+                        x: 0,
+                        y: 0,
+                        width: 180, // A4 width in mm, adjusted for margins
+                        windowWidth: 800 // An arbitrary but reasonable width
+                    });
+
+                } catch(error) {
+                    console.error("Error al generar PDF:", error);
+                    alert("Ocurrió un error al generar el PDF. Por favor, intente de nuevo.");
+                } finally {
+                    downloadButton.innerText = 'Descargar PDF';
+                    downloadButton.disabled = false;
+                }
+            }
+
+
+            // --- Main Form Submission ---
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                if (!validateStep(currentStep)) {
+                    return;
+                }
+
+                reportModal.classList.remove('hidden');
+                manageModalView('loading');
+                downloadPrompt.classList.remove('hidden');
+                mondayFormContainer.classList.add('hidden');
+
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+                initialPrompt = generateGeminiPrompt(data);
+
+                try {
+                    const fullResponseText = await getAIResponse(initialPrompt);
+
+                    let analysisText = fullResponseText;
+                    let timelineData = null;
+                    const jsonBlockRegex = /```json\n([\s\S]*?)\n```/;
+                    const jsonMatch = fullResponseText.match(jsonBlockRegex);
+                    
+                    if (jsonMatch && jsonMatch[1]) {
+                        try {
+                            const parsedJson = JSON.parse(jsonMatch[1]);
+                            timelineData = parsedJson.timelineData;
+                            analysisText = fullResponseText.replace(jsonBlockRegex, '').trim();
+                        } catch (jsonError) {
+                            console.error("Failed to parse timeline JSON:", jsonError);
+                        }
+                    }
+
+                    if (analysisText.includes("necesito clarificar") || /^\s*\d+\.\s/.test(analysisText.trim())) {
+                        displayClarificationQuestions(analysisText);
+                    } else {
+                        diagnosisSummaryOutput.innerHTML = generateSummaryHtml(data);
+                        generateTimeline(timelineData);
+                        aiAnalysisOutput.innerHTML = formatAIResponse(analysisText);
+                        manageModalView('report');
+                    }
+                } catch (err) {
+                    console.error("Error generating report:", err);
+                    manageModalView('error');
+                }
+            });
+
+            // --- Clarification Re-submission ---
+            resubmitBtn.addEventListener('click', async () => {
+                manageModalView('loading');
+                
+                let followUpText = "\n\n--- RESPUESTAS A PREGUNTAS DE ACLARACIÓN ---\n";
+                const clarificationInputs = clarificationForm.querySelectorAll('textarea');
+                clarificationInputs.forEach(input => {
+                    followUpText += `\nPregunta: ${input.dataset.originalQuestion}\nRespuesta: ${input.value}\n`;
+                });
+
+                const finalPrompt = initialPrompt + followUpText;
+
+                try {
+                    const fullResponseText = await getAIResponse(finalPrompt);
+                    const initialData = Object.fromEntries(new FormData(form).entries());
+
+                    let analysisText = fullResponseText;
+                    let timelineData = null;
+                    const jsonBlockRegex = /```json\n([\s\S]*?)\n```/;
+                    const jsonMatch = fullResponseText.match(jsonBlockRegex);
+                    
+                    if (jsonMatch && jsonMatch[1]) {
+                        try {
+                            const parsedJson = JSON.parse(jsonMatch[1]);
+                            timelineData = parsedJson.timelineData;
+                            analysisText = fullResponseText.replace(jsonBlockRegex, '').trim();
+                        } catch (jsonError) {
+                            console.error("Failed to parse timeline JSON:", jsonError);
+                        }
+                    }
+
+                    diagnosisSummaryOutput.innerHTML = generateSummaryHtml(initialData);
+                    generateTimeline(timelineData);
+                    aiAnalysisOutput.innerHTML = formatAIResponse(analysisText);
+                    manageModalView('report');
+
+                } catch (err) {
+                    console.error("Error re-generating report:", err);
+                    manageModalView('error');
+                }
+            });
+            
+            function validateStep(stepIndex) {
+                let isValid = true;
+                const currentStepElement = formSteps[stepIndex];
+                const fields = currentStepElement.querySelectorAll('[required]');
+
+                validationMessage.classList.add('hidden');
+                fields.forEach(field => {
+                    field.classList.remove('border-red-500');
+                    if (field.offsetParent === null) return; 
+
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.classList.add('border-red-500');
+                    }
+                });
+                
+                if (!isValid) {
+                    validationMessage.classList.remove('hidden');
+                }
+
+                return isValid;
+            }
+
+            // --- Navigation and Modal Controls ---
+            nextBtn.addEventListener('click', () => { 
+                if (validateStep(currentStep)) {
+                    if (currentStep < totalSteps - 1) { 
+                        currentStep++; 
+                        showStep(currentStep); 
+                    }
+                }
+            });
+            prevBtn.addEventListener('click', () => { if (currentStep > 0) { currentStep--; showStep(currentStep); } });
+            closeModalBtn.addEventListener('click', () => { reportModal.classList.add('hidden'); });
+            downloadPdfBtn.addEventListener('click', downloadReportAsPDF);
+            
+            const rangeInput = document.getElementById('nivel_formalidad_corporativa');
+            if (rangeInput) {
+                const rangeValue = document.getElementById('rangeValue');
+                rangeInput.addEventListener('input', () => { 
+                    if (rangeValue) {
+                        rangeValue.textContent = rangeInput.value;
+                    }
+                });
+            }
+
+            const tipoEmpresaSelect = document.getElementById('tipo_empresa');
+            if (tipoEmpresaSelect) {
+                const sociosFields = document.getElementById('sociosFields');
+                const sociosInputs = sociosFields.querySelectorAll('input, select');
+
+                tipoEmpresaSelect.addEventListener('change', () => {
+                    const show = ['socios_externos', 'familiar'].includes(tipoEmpresaSelect.value);
+                    sociosFields.classList.toggle('hidden', !show);
+                    sociosInputs.forEach(input => input.required = show);
+                });
+            }
+            
+            // Auto-resize textareas
+            document.querySelectorAll('textarea').forEach(textarea => {
+                textarea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = (this.scrollHeight) + 'px';
+                }, false);
+            });
+
+            showStep(currentStep);
+        });
+    </script>
+</body>
+</html>
