@@ -1082,6 +1082,25 @@
       page.drawText(data.RIESGO_7 || '', { x: mmToPt(49.66), y: yFromTop(223.2), size: 12, font });
       page.drawText(data.MITIGACION_7 || '', { x: mmToPt(89.16), y: yFromTop(223.2), size: 12, font });
 
+      // Hoja 8: Matriz Estrategia, Riesgo y Mitigación
+      const x8 = mmToPt(21);
+      const y8Inicial = yFromTop(60);
+      const y8Final = yFromTop(223);
+      const maxHeight8 = y8Inicial - y8Final;
+      const lineHeight8 = 14;
+      const fontSize8 = 12;
+      const maxRecomendaciones8 = 7;
+      let y8 = y8Inicial;
+      const matriz = data.matriz_estrategia_riesgo || [];
+
+      matriz.slice(0, maxRecomendaciones8).forEach((fila, idx) => {
+        const textoFila = `${idx+1}. Estrategia: ${fila.estrategia} | Riesgo: ${fila.riesgo} | Mitigación: ${fila.mitigacion}`;
+        page = pdfDoc.getPages()[7];
+        page.drawText(textoFila, { x: x8, y: y8, size: fontSize8, font });
+        y8 -= lineHeight8;
+        if (y8 < y8Final) return;
+      });
+
       // Descargar el PDF
       const pdfBytes = await pdfDoc.save();
       const blob = new Blob([pdfBytes], { type: 'application/pdf' });
@@ -1333,6 +1352,64 @@
             document.getElementById('loader').style.display = 'none';
         }
     });
+    </script>
+
+    <script>
+    // Función para hacer wrap de texto en PDF-Lib
+    function wrapText(text, font, fontSize, maxWidth) {
+      const words = text.split(' ');
+      let lines = [];
+      let currentLine = '';
+      words.forEach(word => {
+        const testLine = currentLine ? currentLine + ' ' + word : word;
+        const testWidth = font.widthOfTextAtSize(testLine, fontSize);
+        if (testWidth > maxWidth && currentLine) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          currentLine = testLine;
+        }
+      });
+      if (currentLine) lines.push(currentLine);
+      return lines;
+    }
+    </script>
+
+    <script>
+    // Función para extraer la tabla Markdown a array de objetos
+    function extractMarkdownTable(markdown, headerKeys = ['estrategia', 'riesgo', 'mitigacion']) {
+      const tableRegex = /\|(.+)\|\n\|([\-\s|]+)\|\n((?:\|.*\|\n?)*)/i;
+      const match = markdown.match(tableRegex);
+      if (!match) return [];
+      const rows = match[3].trim().split('\n');
+      return rows.map(row => {
+        const cells = row.split('|').map(cell => cell.trim()).filter(Boolean);
+        return {
+          [headerKeys[0]]: cells[0] || '',
+          [headerKeys[1]]: cells[1] || '',
+          [headerKeys[2]]: cells[2] || ''
+        };
+      });
+    }
+
+    // Función para extraer la línea del tiempo Markdown a objeto
+    function extractTimeline(markdown) {
+      const timeline = { corto: [], mediano: [], largo: [] };
+      const corto = markdown.match(/###\s*Corto Plazo([\s\S]*?)(?=###|$)/i);
+      const mediano = markdown.match(/###\s*Mediano Plazo([\s\S]*?)(?=###|$)/i);
+      const largo = markdown.match(/###\s*Largo Plazo([\s\S]*?)(?=###|$)/i);
+      if (corto) timeline.corto = (corto[1].match(/- (.+)/g) || []).map(s => s.replace(/^- /, '').trim());
+      if (mediano) timeline.mediano = (mediano[1].match(/- (.+)/g) || []).map(s => s.replace(/^- /, '').trim());
+      if (largo) timeline.largo = (largo[1].match(/- (.+)/g) || []).map(s => s.replace(/^- /, '').trim());
+      return timeline;
+    }
+
+    // Ejemplo de uso después de recibir la respuesta de la IA (en Markdown):
+    // const markdown = respuestaIA;
+    // const matriz = extractMarkdownTable(markdown);
+    // const timeline = extractTimeline(markdown);
+    // Ahora puedes usar 'matriz' y 'timeline' para llenar el PDF
+    // ... código existente ...
     </script>
 </body>
 </html>
