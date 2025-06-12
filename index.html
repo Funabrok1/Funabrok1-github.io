@@ -989,7 +989,7 @@
 
     async function fillPdf(data) {
       const { PDFDocument, StandardFonts, rgb } = PDFLib;
-      const url = 'https://funabrok1.github.io/Diagnostico.pdf';
+      const url = 'https://tubular-sorbet-3c24b9.netlify.app/Diagnostico.pdf';
       const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
       const pdfDoc = await PDFDocument.load(existingPdfBytes);
       console.log('Número de páginas:', pdfDoc.getPageCount());
@@ -1399,4 +1399,3 @@
     </script>
 </body>
 </html>
-
