@@ -522,13 +522,17 @@
                 progressBar.style.width = `${progress}%`;
                 stepCounter.textContent = `Paso ${stepIndex + 1} de ${totalSteps}`;
 
-                // Botón "Anterior" solo se oculta en el primer paso
-                prevBtn.classList.toggle('hidden', stepIndex === 0);
+                // Siempre mostrar ambos botones
+                prevBtn.classList.remove('hidden');
+                nextBtn.classList.remove('hidden');
 
-                // Botón "Siguiente" solo se oculta en el último paso
-                nextBtn.classList.toggle('hidden', stepIndex === totalSteps - 1);
+                // Ocultar 'Anterior' solo en el primer paso
+                if (stepIndex === 0) prevBtn.classList.add('hidden');
 
-                // Botón "Generar Diagnóstico" solo se muestra en el último paso
+                // Ocultar 'Siguiente' solo en el último paso
+                if (stepIndex === totalSteps - 1) nextBtn.classList.add('hidden');
+
+                // Mostrar 'Generar Diagnóstico' solo en el último paso
                 submitBtn.classList.toggle('hidden', stepIndex !== totalSteps - 1);
             }
             
