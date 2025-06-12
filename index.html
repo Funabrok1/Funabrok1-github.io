@@ -706,35 +706,21 @@
                     });
 
                     if (!response.ok) {
-                        // Error HTTP (por ejemplo, 401, 403, 500, etc.)
                         const errorText = await response.text();
                         throw new Error(`Error de la API (${response.status}): ${errorText}`);
                     }
 
                     const data = await response.json();
 
-                    // Verifica que la respuesta tenga el formato esperado
                     if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts) {
                         throw new Error("La respuesta de la IA no tiene el formato esperado.");
                     }
 
-                    // Extrae el texto generado
-                    const aiText = data.candidates[0].content.parts[0].text;
-
-                    // Intenta parsear el JSON devuelto por la IA
-                    let aiJson;
-                    try {
-                        aiJson = JSON.parse(aiText);
-                    } catch (e) {
-                        throw new Error("La IA no devolvió un JSON válido. Respuesta recibida: " + aiText);
-                    }
-
-                    return aiJson;
+                    // Devuelve el texto en Markdown
+                    return data.candidates[0].content.parts[0].text;
 
                 } catch (error) {
-                    // Aquí puedes mostrar un mensaje al usuario o registrar el error
                     alert("Ocurrió un error al obtener la respuesta de la IA: " + error.message);
-                    // También puedes lanzar el error para manejarlo en otro lugar
                     throw error;
                 }
             }
