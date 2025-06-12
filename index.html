@@ -19,149 +19,173 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <!-- Custom Styles -->
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(rgba(12, 15, 26, 0.7), rgba(12, 15, 26, 0.7)), url('https://i.ibb.co/mCCfbmt8/fondo-envision.webp');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: #00395a;
-            cursor: pointer;
-            border-radius: 50%;
-            margin-top: -6px;
-        }
-        input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: #00395a;
-            cursor: pointer;
-            border-radius: 50%;
-        }
-        .form-step { display: none; }
-        .form-step-active { display: block; }
-        .loader {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #3b82f6;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        /* Estilos para el contenido del reporte */
-        #aiAnalysisOutput h1, #aiAnalysisOutput h2, #aiAnalysisOutput h3,
-        #aiAnalysisOutput table, #aiAnalysisOutput ul, #aiAnalysisOutput ol {
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-        }
-        /* Estilo para los textareas autoajustables y corrección de color */
-        textarea, 
-        input[type="text"], 
-        input[type="number"],
-        input[type="email"],
-        input[type="tel"],
-        select {
-            resize: none;
-            overflow-y: hidden;
-            background-color: #ffffff !important; /* Fondo blanco */
-            color: #111827 !important; /* Texto oscuro */
-            -webkit-text-fill-color: #111827 !important; /* Forzar color de texto en WebKit */
-         }
-        /* Estilo para el texto de placeholder */
-        ::placeholder {
-            color: #a0aec0 !important; /* Gris claro */
-            opacity: 1; 
-        }
-        .border-red-500 {
-            border-color: #ef4444;
-        }
-        /* --- COLORES CORPORATIVOS PARA EL REPORTE --- */
-        #reportModal h1, #reportModal h2, #reportModal h3, #reportModal h4, #reportModal h5, #reportModal h6 {
-            color: #00395a !important;
-            text-align: left !important;
-        }
-        #reportModal strong, #reportModal .font-semibold, #reportModal .font-bold {
-            color: #021524 !important;
-        }
-        #reportModal .border-blue-500, #reportModal .border-blue-600, #reportModal .border-blue-300, #reportModal .bg-blue-600 {
-            border-color: #006599 !important;
-            background-color: #006599 !important;
-        }
-        #reportModal .text-blue-600 {
-            color: #006599 !important;
-        }
-        #reportModal .divide-blue-300 {
-            border-color: #006599 !important;
-        }
-        #reportModal .border-t {
-            border-top: 2px solid #006599 !important;
-        }
-        #reportModal .rounded-lg, #reportModal .rounded-2xl {
-            border-radius: 18px !important;
-        }
-        #reportModal .overflow-x-auto table th {
-            background: #00395a !important;
-            color: #fff !important;
-        }
-        #reportModal .overflow-x-auto table td {
-            border-top: 1px solid #006599 !important;
-        }
-        /* Forzar alineación a la izquierda en todo el contenido del reporte */
-        #reportContent, #reportContent * {
-            text-align: left !important;
-        }
-        /* --- FIN COLORES CORPORATIVOS --- */
-        /* --- COLORES CORPORATIVOS PARA EL FORMULARIO --- */
-        /* Barra vertical antes de los títulos de fase */
-        .border-blue-500 {
-            border-color: #00395a !important;
-        }
-        /* Botones principales y secundarios */
-        #diagnosisForm button,
-        #diagnosisForm .bg-blue-600,
-        #diagnosisForm .bg-green-600,
-        #diagnosisForm .bg-gray-300,
-        #diagnosisForm .hover\:bg-gray-400:hover {
-            background-color: #00395a !important;
-            border-color: #00395a !important;
-            color: #fff !important;
-        }
-        #diagnosisForm button:hover,
-        #diagnosisForm .bg-blue-700:hover,
-        #diagnosisForm .bg-green-700:hover {
-            background-color: #021524 !important;
-            border-color: #021524 !important;
-        }
-        /* Slider thumb y barra activa */
-        input[type="range"]::-webkit-slider-thumb {
-            background: #00395a !important;
-        }
-        input[type="range"]::-moz-range-thumb {
-            background: #00395a !important;
-        }
-        #progressBar {
-            background-color: #00395a !important;
-        }
-        /* Botón Anterior: texto blanco siempre */
-        #prevBtn {
-            color: #fff !important;
-        }
-        /* Línea de avance de pasos */
-        #progressBar {
-            background-color: #00395a !important;
-        }
-        /* --- FIN COLORES CORPORATIVOS FORMULARIO --- */
-    </style>
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- ================== GENERACIÓN DE PDF DINÁMICO CON PDF-LIB.js (VERSIÓN PARA NAVEGADOR) ================== -->
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+    <script>
+    const MM_TO_PT = 2.83465;
+    const A4_HEIGHT_MM = 297;
+
+    function mmToPt(mm) { return mm * MM_TO_PT; }
+    function yFromTop(mm) { return mmToPt(A4_HEIGHT_MM - mm); }
+
+    async function fillPdf(data) {
+      const { PDFDocument, StandardFonts, rgb } = PDFLib;
+      const url = 'Diagnostico.pdf';
+      const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
+      const pdfDoc = await PDFDocument.load(existingPdfBytes);
+      console.log('Número de páginas:', pdfDoc.getPageCount());
+      const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+      // Página 1
+      let page = pdfDoc.getPages()[0];
+      page.drawText(data.NOMBRE_EMPRESA || 'PRUEBA', { x: mmToPt(6.08), y: yFromTop(260.94), size: 18, font, color: rgb(0, 0.22, 0.35) });
+      page.drawText(data.NOMBRE_CONTACTO || '', { x: mmToPt(114.32), y: yFromTop(260.94), size: 12, font, color: rgb(0, 0.22, 0.35) });
+
+      // Página 2
+      page = pdfDoc.getPages()[1];
+      page.drawText(data.ROL_ACTUAL || '', { x: mmToPt(113.03), y: yFromTop(58.86), size: 12, font });
+      page.drawText(data.SECTOR || '', { x: mmToPt(113.03), y: yFromTop(80.91), size: 12, font });
+      page.drawText(data.NUMERO_EMPLEADOS || '', { x: mmToPt(113.03), y: yFromTop(102.8), size: 12, font });
+      page.drawText(data.DESCRIPCION_NEGOCIO || '', { x: mmToPt(127.58), y: yFromTop(122.64), size: 12, font });
+      page.drawText(data.PERSONAS_INDISPENSABLES || '', { x: mmToPt(30.45), y: yFromTop(203.56), size: 12, font });
+      page.drawText(data.ANTIGUEDAD_NEGOCIO || '', { x: mmToPt(127.58), y: yFromTop(203.56), size: 12, font });
+      page.drawText(data.TIPO_SOCIEDAD || '', { x: mmToPt(30.45), y: yFromTop(244.02), size: 12, font });
+      page.drawText(data.MONTO_PROYECTOS || '', { x: mmToPt(127.58), y: yFromTop(244.02), size: 12, font });
+
+      // Página 3
+      page = pdfDoc.getPages()[2];
+      page.drawText(data.CORTO_PLAZO_1 || '', { x: mmToPt(46.78), y: yFromTop(76.63), size: 12, font });
+      page.drawText(data.CORTO_PLAZO_2 || '', { x: mmToPt(46.78), y: yFromTop(95.95), size: 12, font });
+      page.drawText(data.CORTO_PLAZO_3 || '', { x: mmToPt(46.78), y: yFromTop(115.02), size: 12, font });
+      page.drawText(data.MEDIANO_PLAZO_1 || '', { x: mmToPt(21), y: yFromTop(149.79), size: 12, font });
+      page.drawText(data.MEDIANO_PLAZO_2 || '', { x: mmToPt(21), y: yFromTop(169.11), size: 12, font });
+      page.drawText(data.MEDIANO_PLAZO_3 || '', { x: mmToPt(21), y: yFromTop(188.18), size: 12, font });
+      page.drawText(data.LARGO_PLAZO_1 || '', { x: mmToPt(41.29), y: yFromTop(235.72), size: 12, font });
+      page.drawText(data.LARGO_PLAZO_2 || '', { x: mmToPt(41.29), y: yFromTop(205.05), size: 12, font });
+      page.drawText(data.LARGO_PLAZO_3 || '', { x: mmToPt(41.29), y: yFromTop(274.12), size: 12, font });
+
+      // Página 4
+      page = pdfDoc.getPages()[3];
+      page.drawText(data.RESUMEN_EJECUTIVO || '', { x: mmToPt(16.17), y: yFromTop(79.21), size: 12, font });
+      page.drawText(data.MODELO_NEGOCIOS || '', { x: mmToPt(16.17), y: yFromTop(211.22), size: 12, font });
+
+      // Página 5
+      page = pdfDoc.getPages()[4];
+      page.drawText(data.ESTRATEIGAS_MARKETING || '', { x: mmToPt(16.17), y: yFromTop(44.18), size: 12, font });
+      page.drawText(data.GOBIERNO_CORPORATIVO || '', { x: mmToPt(16.17), y: yFromTop(135.03), size: 12, font });
+      page.drawText(data.PLANIFICACION_FISCAL || '', { x: mmToPt(16.17), y: yFromTop(29.91), size: 12, font });
+
+      // Página 6
+      page = pdfDoc.getPages()[5];
+      page.drawText(data.CORTO_PLAZO_DESGLOSE || '', { x: mmToPt(16.17), y: yFromTop(79.21), size: 12, font });
+      page.drawText(data.MEDIANO_PLAZO_DESGLOSE || '', { x: mmToPt(16.17), y: yFromTop(211.22), size: 12, font });
+
+      // Página 7
+      page = pdfDoc.getPages()[6];
+      page.drawText(data.LARGO_PLAZO_DESGLOSE || '', { x: mmToPt(16.1), y: yFromTop(44.18), size: 12, font });
+      page.drawText(data.RECOMENDACIONES_ESPECIFICAS || '', { x: mmToPt(16.17), y: yFromTop(135.03), size: 12, font });
+
+      // Página 8
+      page = pdfDoc.getPages()[7];
+      page.drawText(data.ESTRATEGIA_1 || '', { x: mmToPt(10.21), y: yFromTop(73.41), size: 12, font });
+      page.drawText(data.RIESGO_1 || '', { x: mmToPt(49.66), y: yFromTop(73.41), size: 12, font });
+      page.drawText(data.MITIGACION_1 || '', { x: mmToPt(89.16), y: yFromTop(73.41), size: 12, font });
+      page.drawText(data.ESTRATEGIA_2 || '', { x: mmToPt(10.321), y: yFromTop(98.24), size: 12, font });
+      page.drawText(data.RIESGO_2 || '', { x: mmToPt(49.66), y: yFromTop(98.24), size: 12, font });
+      page.drawText(data.MITIGACION_2 || '', { x: mmToPt(89.16), y: yFromTop(98.24), size: 12, font });
+      page.drawText(data.ESTRATEGIA_3 || '', { x: mmToPt(10.21), y: yFromTop(123.07), size: 12, font });
+      page.drawText(data.RIESGO_3 || '', { x: mmToPt(49.66), y: yFromTop(123.07), size: 12, font });
+      page.drawText(data.MITIGACION_3 || '', { x: mmToPt(89.16), y: yFromTop(123.07), size: 12, font });
+      page.drawText(data.ESTRATEGIA_4 || '', { x: mmToPt(10.21), y: yFromTop(144.28), size: 12, font });
+      page.drawText(data.RIESGO_4 || '', { x: mmToPt(49.66), y: yFromTop(144.28), size: 12, font });
+      page.drawText(data.MITIGACION_4 || '', { x: mmToPt(89.16), y: yFromTop(144.28), size: 12, font });
+      page.drawText(data.ESTRATEGIA_5 || '', { x: mmToPt(10.21), y: yFromTop(170.15), size: 12, font });
+      page.drawText(data.RIESGO_5 || '', { x: mmToPt(49.66), y: yFromTop(170.15), size: 12, font });
+      page.drawText(data.MITIGACION_5 || '', { x: mmToPt(89.16), y: yFromTop(170.15), size: 12, font });
+      page.drawText(data.ESTRATEGIA_6 || '', { x: mmToPt(10.21), y: yFromTop(199.01), size: 12, font });
+      page.drawText(data.RIESGO_6 || '', { x: mmToPt(49.66), y: yFromTop(199.01), size: 12, font });
+      page.drawText(data.MITIGACION_6 || '', { x: mmToPt(89.16), y: yFromTop(199.01), size: 12, font });
+      page.drawText(data.ESTRATEGIA_7 || '', { x: mmToPt(10.21), y: yFromTop(223.2), size: 12, font });
+      page.drawText(data.RIESGO_7 || '', { x: mmToPt(49.66), y: yFromTop(223.2), size: 12, font });
+      page.drawText(data.MITIGACION_7 || '', { x: mmToPt(89.16), y: yFromTop(223.2), size: 12, font });
+
+      // Descargar el PDF
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'diagnostico-empresarial.pdf';
+      link.click();
+    }
+
+    // Ejemplo de uso:
+    // fillPdf({
+    //   NOMBRE_EMPRESA: 'Envision Life',
+    //   NOMBRE_CONTACTO: 'Arturo Flores',
+    //   ...
+    // });
+    </script>
+    <!-- ================== FIN PDF-LIB.js ================== -->
+
+    <!-- ================== PROMPT SUGERIDO PARA LA IA (PARA GENERAR EL JSON DE CAMPOS DEL PDF) ================== -->
+    <!--
+    Eres un asistente experto en diagnóstico empresarial. Analiza la información proporcionada y responde únicamente con un bloque JSON que contenga los siguientes campos, usando exactamente estos nombres de variable y sin agregar ningún texto adicional fuera del bloque JSON:
+
+    {
+      "NOMBRE_EMPRESA": "",
+      "NOMBRE_CONTACTO": "",
+      "ROL_ACTUAL": "",
+      "SECTOR": "",
+      "NUMERO_EMPLEADOS": "",
+      "DESCRIPCION_NEGOCIO": "",
+      "PERSONAS_INDISPENSABLES": "",
+      "ANTIGUEDAD_NEGOCIO": "",
+      "TIPO_SOCIEDAD": "",
+      "MONTO_PROYECTOS": "",
+      "CORTO_PLAZO_1": "",
+      "CORTO_PLAZO_2": "",
+      "CORTO_PLAZO_3": "",
+      "MEDIANO_PLAZO_1": "",
+      "MEDIANO_PLAZO_2": "",
+      "MEDIANO_PLAZO_3": "",
+      "LARGO_PLAZO_1": "",
+      "LARGO_PLAZO_2": "",
+      "LARGO_PLAZO_3": "",
+      "RESUMEN_EJECUTIVO": "",
+      "MODELO_NEGOCIOS": "",
+      "ESTRATEIGAS_MARKETING": "",
+      "GOBIERNO_CORPORATIVO": "",
+      "PLANIFICACION_FISCAL": "",
+      "CORTO_PLAZO_DESGLOSE": "",
+      "MEDIANO_PLAZO_DESGLOSE": "",
+      "LARGO_PLAZO_DESGLOSE": "",
+      "RECOMENDACIONES_ESPECIFICAS": "",
+      "ESTRATEGIA_1": "",
+      "RIESGO_1": "",
+      "MITIGACION_1": "",
+      "ESTRATEGIA_2": "",
+      "RIESGO_2": "",
+      "MITIGACION_2": "",
+      "ESTRATEGIA_3": "",
+      "RIESGO_3": "",
+      "MITIGACION_3": "",
+      "ESTRATEGIA_4": "",
+      "RIESGO_4": "",
+      "MITIGACION_4": "",
+      "ESTRATEGIA_5": "",
+      "RIESGO_5": "",
+      "MITIGACION_5": "",
+      "ESTRATEGIA_6": "",
+      "RIESGO_6": "",
+      "MITIGACION_6": "",
+      "ESTRATEGIA_7": "",
+      "RIESGO_7": "",
+      "MITIGACION_7": ""
+    }
+    -->
+    <!-- ================== FIN PROMPT SUGERIDO PARA LA IA ================== -->
 </head>
 <body class="antialiased text-gray-800">
 
@@ -221,10 +245,52 @@
                         <div><label for="existencia_contratos" class="block text-sm font-medium text-gray-700 mb-1">¿Cuentan con contratos claros?</label><select id="existencia_contratos" name="existencia_contratos" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="si">Sí, con proveedores, clientes y empleados</option><option value="parcialmente">Parcialmente</option><option value="no">No, son informales</option></select></div>
                         <div><label for="propiedad_intelectual_registrada" class="block text-sm font-medium text-gray-700 mb-1">¿Han registrado patentes o marcas?</label><select id="propiedad_intelectual_registrada" name="propiedad_intelectual_registrada" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="si">Sí</option><option value="en_proceso">En proceso</option><option value="no">No</option></select></div>
                         <div class="md:col-span-2"><label for="gestion_compliance" class="block text-sm font-medium text-gray-700 mb-1">Gestión de cumplimiento normativo (Compliance)</label><textarea id="gestion_compliance" name="gestion_compliance" rows="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Manual interno, asesor externo..." required></textarea></div>
-                        <div><label class="block text-sm font-medium text-gray-700 mb-2">¿Protocolos de gobierno corporativo?</label><div class="flex space-x-4 mt-2"><div class="flex items-center"><input type="radio" id="gobSi" name="protocolos_gobierno" value="Sí" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required><label for="gobSi" class="ml-2 text-sm text-gray-700">Sí</label></div><div class="flex items-center"><input type="radio" id="gobNo" name="protocolos_gobierno" value="No" class="h-4 w-4 text-blue-600 focus:ring-blue-500"><label for="gobNo" class="ml-2 text-sm text-gray-700">No</label></div></div></div>
-                        <div><label class="block text-sm font-medium text-gray-700 mb-2">¿Plan de sucesión definido?</label><div class="flex space-x-4 mt-2"><div class="flex items-center"><input type="radio" id="sucSi" name="plan_sucesion_definido" value="Sí" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required><label for="sucSi" class="ml-2 text-sm text-gray-700">Sí</label></div><div class="flex items-center"><input type="radio" id="sucNo" name="plan_sucesion_definido" value="No" class="h-4 w-4 text-blue-600 focus:ring-blue-500"><label for="sucNo" class="ml-2 text-sm text-gray-700">No</label></div></div></div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-2">¿Protocolos de gobierno corporativo?</label>
+                        <fieldset class="mb-4">
+                          <legend class="block text-sm font-medium text-gray-700 mb-2">¿Protocolos de gobierno corporativo?</legend>
+                          <div class="flex space-x-4 mt-2">
+                            <div class="flex items-center">
+                              <input type="radio" id="gobSi" name="protocolos_gobierno" value="Sí" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required>
+                              <label for="gobSi" class="ml-2 text-sm text-gray-700">Sí</label>
+                            </div>
+                            <div class="flex items-center">
+                              <input type="radio" id="gobNo" name="protocolos_gobierno" value="No" class="h-4 w-4 text-blue-600 focus:ring-blue-500">
+                              <label for="gobNo" class="ml-2 text-sm text-gray-700">No</label>
+                            </div>
+                          </div>
+                        </fieldset>
+                        </div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-2">¿Plan de sucesión definido?</label>
+                        <fieldset class="mb-4">
+                          <legend class="block text-sm font-medium text-gray-700 mb-2">¿Plan de sucesión definido?</legend>
+                          <div class="flex space-x-4 mt-2">
+                            <div class="flex items-center">
+                              <input type="radio" id="sucSi" name="plan_sucesion_definido" value="Sí" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required>
+                              <label for="sucSi" class="ml-2 text-sm text-gray-700">Sí</label>
+                            </div>
+                            <div class="flex items-center">
+                              <input type="radio" id="sucNo" name="plan_sucesion_definido" value="No" class="h-4 w-4 text-blue-600 focus:ring-blue-500">
+                              <label for="sucNo" class="ml-2 text-sm text-gray-700">No</label>
+                            </div>
+                          </div>
+                        </fieldset>
+                        </div>
                         <div><label for="nivel_cumplimiento_fiscal" class="block text-sm font-medium text-gray-700 mb-2">Nivel de cumplimiento fiscal</label><input type="range" id="nivel_cumplimiento_fiscal" name="nivel_cumplimiento_fiscal" min="1" max="5" value="3" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"><div class="flex justify-between text-xs px-1 mt-1"><span>Bajo</span><span>Medio</span><span>Alto</span></div></div>
-                        <div><label class="block text-sm font-medium text-gray-700 mb-2">¿Asesoría legal y fiscal permanente?</label><div class="flex space-x-4 mt-2"><div class="flex items-center"><input type="radio" id="aseSi" name="asesoria_legal_permanente" value="Sí" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required><label for="aseSi" class="ml-2 text-sm text-gray-700">Sí</label></div><div class="flex items-center"><input type="radio" id="aseNo" name="asesoria_legal_permanente" value="No" class="h-4 w-4 text-blue-600 focus:ring-blue-500"><label for="aseNo" class="ml-2 text-sm text-gray-700">No</label></div></div></div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-2">¿Asesoría legal y fiscal permanente?</label>
+                        <fieldset class="mb-4">
+                          <legend class="block text-sm font-medium text-gray-700 mb-2">¿Asesoría legal y fiscal permanente?</legend>
+                          <div class="flex space-x-4 mt-2">
+                            <div class="flex items-center">
+                              <input type="radio" id="aseSi" name="asesoria_legal_permanente" value="Sí" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required>
+                              <label for="aseSi" class="ml-2 text-sm text-gray-700">Sí</label>
+                            </div>
+                            <div class="flex items-center">
+                              <input type="radio" id="aseNo" name="asesoria_legal_permanente" value="No" class="h-4 w-4 text-blue-600 focus:ring-blue-500">
+                              <label for="aseNo" class="ml-2 text-sm text-gray-700">No</label>
+                            </div>
+                          </div>
+                        </fieldset>
+                        </div>
                     </div>
                     
                     <h3 class="text-lg font-medium text-gray-800 mt-8 mb-4">Marketing y Posicionamiento</h3>
@@ -259,7 +325,21 @@
                         <div><label for="plan_contingencia_existente" class="block text-sm font-medium text-gray-700 mb-1">¿Plan sucesorio o fondo de contingencia?</label><select id="plan_contingencia_existente" name="plan_contingencia_existente" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="plan_sucesorio">Sí, tenemos un plan sucesorio</option><option value="fondo_contingencia">Sí, tenemos un fondo de contingencia</option><option value="ambos">Contamos con ambos</option><option value="ninguno">Ninguno</option></select></div>
                         <div><label for="tipo_prestaciones_empleados" class="block text-sm font-medium text-gray-700 mb-1">Prestaciones que ofrecen a empleados</label><textarea id="tipo_prestaciones_empleados" name="tipo_prestaciones_empleados" rows="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Solo las de ley, SGMM, Vales..." required></textarea></div>
                         <div><label for="gestion_rotacion_personal" class="block text-sm font-medium text-gray-700 mb-1">¿Cómo gestionan la rotación de talento clave?</label><textarea id="gestion_rotacion_personal" name="gestion_rotacion_personal" rows="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: No tenemos plan, bonos de retención..." required></textarea></div>
-                        <div class="md:col-span-2"><label class="block text-sm font-medium text-gray-700 mb-2">¿Cuenta con seguros de personas clave?</label><div class="flex space-x-4 mt-2"><div class="flex items-center"><input type="radio" id="segPerSi" name="seguro_personas_clave" value="Sí" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required><label for="segPerSi" class="ml-2 text-sm">Sí</label></div><div class="flex items-center"><input type="radio" id="segPerNo" name="seguro_personas_clave" value="No" class="h-4 w-4 text-blue-600 focus:ring-blue-500"><label for="segPerNo" class="ml-2 text-sm">No</label></div></div></div>
+                        <div class="md:col-span-2">
+                            <fieldset class="mb-4 md:col-span-2">
+                              <legend class="block text-sm font-medium text-gray-700 mb-2">¿Cuenta con seguros de personas clave?</legend>
+                              <div class="flex space-x-4 mt-2">
+                                <div class="flex items-center">
+                                  <input type="radio" id="segPerSi" name="seguro_personas_clave" value="Sí" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required>
+                                  <label for="segPerSi" class="ml-2 text-sm">Sí</label>
+                                </div>
+                                <div class="flex items-center">
+                                  <input type="radio" id="segPerNo" name="seguro_personas_clave" value="No" class="h-4 w-4 text-blue-600 focus:ring-blue-500">
+                                  <label for="segPerNo" class="ml-2 text-sm">No</label>
+                                </div>
+                              </div>
+                            </fieldset>
+                        </div>
                         <div class="md:col-span-2"><label for="preocupaciones_continuidad" class="block text-sm font-medium text-gray-700 mb-1">Principales preocupaciones sobre la continuidad del negocio</label><textarea id="preocupaciones_continuidad" name="preocupaciones_continuidad" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Describa sus principales preocupaciones sobre la continuidad de su negocio" required></textarea></div>
                     </div>
                 </div>
@@ -861,171 +941,5 @@
             showStep(currentStep);
         });
     </script>
-
-    <!-- ================== GENERACIÓN DE PDF DINÁMICO CON PDF-LIB.js (VERSIÓN PARA NAVEGADOR) ================== -->
-    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-    <script>
-    const MM_TO_PT = 2.83465;
-    const A4_HEIGHT_MM = 297;
-
-    function mmToPt(mm) { return mm * MM_TO_PT; }
-    function yFromTop(mm) { return mmToPt(A4_HEIGHT_MM - mm); }
-
-    async function fillPdf(data) {
-      const { PDFDocument, StandardFonts, rgb } = PDFLib;
-      const url = 'Diagnostico.pdf';
-      const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
-      const pdfDoc = await PDFDocument.load(existingPdfBytes);
-      console.log('Número de páginas:', pdfDoc.getPageCount());
-      const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-
-      // Página 1
-      let page = pdfDoc.getPages()[0];
-      page.drawText(data.NOMBRE_EMPRESA || 'PRUEBA', { x: mmToPt(6.08), y: yFromTop(260.94), size: 18, font, color: rgb(0, 0.22, 0.35) });
-      page.drawText(data.NOMBRE_CONTACTO || '', { x: mmToPt(114.32), y: yFromTop(260.94), size: 12, font, color: rgb(0, 0.22, 0.35) });
-
-      // Página 2
-      page = pdfDoc.getPages()[1];
-      page.drawText(data.ROL_ACTUAL || '', { x: mmToPt(113.03), y: yFromTop(58.86), size: 12, font });
-      page.drawText(data.SECTOR || '', { x: mmToPt(113.03), y: yFromTop(80.91), size: 12, font });
-      page.drawText(data.NUMERO_EMPLEADOS || '', { x: mmToPt(113.03), y: yFromTop(102.8), size: 12, font });
-      page.drawText(data.DESCRIPCION_NEGOCIO || '', { x: mmToPt(127.58), y: yFromTop(122.64), size: 12, font });
-      page.drawText(data.PERSONAS_INDISPENSABLES || '', { x: mmToPt(30.45), y: yFromTop(203.56), size: 12, font });
-      page.drawText(data.ANTIGUEDAD_NEGOCIO || '', { x: mmToPt(127.58), y: yFromTop(203.56), size: 12, font });
-      page.drawText(data.TIPO_SOCIEDAD || '', { x: mmToPt(30.45), y: yFromTop(244.02), size: 12, font });
-      page.drawText(data.MONTO_PROYECTOS || '', { x: mmToPt(127.58), y: yFromTop(244.02), size: 12, font });
-
-      // Página 3
-      page = pdfDoc.getPages()[2];
-      page.drawText(data.CORTO_PLAZO_1 || '', { x: mmToPt(46.78), y: yFromTop(76.63), size: 12, font });
-      page.drawText(data.CORTO_PLAZO_2 || '', { x: mmToPt(46.78), y: yFromTop(95.95), size: 12, font });
-      page.drawText(data.CORTO_PLAZO_3 || '', { x: mmToPt(46.78), y: yFromTop(115.02), size: 12, font });
-      page.drawText(data.MEDIANO_PLAZO_1 || '', { x: mmToPt(21), y: yFromTop(149.79), size: 12, font });
-      page.drawText(data.MEDIANO_PLAZO_2 || '', { x: mmToPt(21), y: yFromTop(169.11), size: 12, font });
-      page.drawText(data.MEDIANO_PLAZO_3 || '', { x: mmToPt(21), y: yFromTop(188.18), size: 12, font });
-      page.drawText(data.LARGO_PLAZO_1 || '', { x: mmToPt(41.29), y: yFromTop(235.72), size: 12, font });
-      page.drawText(data.LARGO_PLAZO_2 || '', { x: mmToPt(41.29), y: yFromTop(205.05), size: 12, font });
-      page.drawText(data.LARGO_PLAZO_3 || '', { x: mmToPt(41.29), y: yFromTop(274.12), size: 12, font });
-
-      // Página 4
-      page = pdfDoc.getPages()[3];
-      page.drawText(data.RESUMEN_EJECUTIVO || '', { x: mmToPt(16.17), y: yFromTop(79.21), size: 12, font });
-      page.drawText(data.MODELO_NEGOCIOS || '', { x: mmToPt(16.17), y: yFromTop(211.22), size: 12, font });
-
-      // Página 5
-      page = pdfDoc.getPages()[4];
-      page.drawText(data.ESTRATEIGAS_MARKETING || '', { x: mmToPt(16.17), y: yFromTop(44.18), size: 12, font });
-      page.drawText(data.GOBIERNO_CORPORATIVO || '', { x: mmToPt(16.17), y: yFromTop(135.03), size: 12, font });
-      page.drawText(data.PLANIFICACION_FISCAL || '', { x: mmToPt(16.17), y: yFromTop(29.91), size: 12, font });
-
-      // Página 6
-      page = pdfDoc.getPages()[5];
-      page.drawText(data.CORTO_PLAZO_DESGLOSE || '', { x: mmToPt(16.17), y: yFromTop(79.21), size: 12, font });
-      page.drawText(data.MEDIANO_PLAZO_DESGLOSE || '', { x: mmToPt(16.17), y: yFromTop(211.22), size: 12, font });
-
-      // Página 7
-      page = pdfDoc.getPages()[6];
-      page.drawText(data.LARGO_PLAZO_DESGLOSE || '', { x: mmToPt(16.1), y: yFromTop(44.18), size: 12, font });
-      page.drawText(data.RECOMENDACIONES_ESPECIFICAS || '', { x: mmToPt(16.17), y: yFromTop(135.03), size: 12, font });
-
-      // Página 8
-      page = pdfDoc.getPages()[7];
-      page.drawText(data.ESTRATEGIA_1 || '', { x: mmToPt(10.21), y: yFromTop(73.41), size: 12, font });
-      page.drawText(data.RIESGO_1 || '', { x: mmToPt(49.66), y: yFromTop(73.41), size: 12, font });
-      page.drawText(data.MITIGACION_1 || '', { x: mmToPt(89.16), y: yFromTop(73.41), size: 12, font });
-      page.drawText(data.ESTRATEGIA_2 || '', { x: mmToPt(10.321), y: yFromTop(98.24), size: 12, font });
-      page.drawText(data.RIESGO_2 || '', { x: mmToPt(49.66), y: yFromTop(98.24), size: 12, font });
-      page.drawText(data.MITIGACION_2 || '', { x: mmToPt(89.16), y: yFromTop(98.24), size: 12, font });
-      page.drawText(data.ESTRATEGIA_3 || '', { x: mmToPt(10.21), y: yFromTop(123.07), size: 12, font });
-      page.drawText(data.RIESGO_3 || '', { x: mmToPt(49.66), y: yFromTop(123.07), size: 12, font });
-      page.drawText(data.MITIGACION_3 || '', { x: mmToPt(89.16), y: yFromTop(123.07), size: 12, font });
-      page.drawText(data.ESTRATEGIA_4 || '', { x: mmToPt(10.21), y: yFromTop(144.28), size: 12, font });
-      page.drawText(data.RIESGO_4 || '', { x: mmToPt(49.66), y: yFromTop(144.28), size: 12, font });
-      page.drawText(data.MITIGACION_4 || '', { x: mmToPt(89.16), y: yFromTop(144.28), size: 12, font });
-      page.drawText(data.ESTRATEGIA_5 || '', { x: mmToPt(10.21), y: yFromTop(170.15), size: 12, font });
-      page.drawText(data.RIESGO_5 || '', { x: mmToPt(49.66), y: yFromTop(170.15), size: 12, font });
-      page.drawText(data.MITIGACION_5 || '', { x: mmToPt(89.16), y: yFromTop(170.15), size: 12, font });
-      page.drawText(data.ESTRATEGIA_6 || '', { x: mmToPt(10.21), y: yFromTop(199.01), size: 12, font });
-      page.drawText(data.RIESGO_6 || '', { x: mmToPt(49.66), y: yFromTop(199.01), size: 12, font });
-      page.drawText(data.MITIGACION_6 || '', { x: mmToPt(89.16), y: yFromTop(199.01), size: 12, font });
-      page.drawText(data.ESTRATEGIA_7 || '', { x: mmToPt(10.21), y: yFromTop(223.2), size: 12, font });
-      page.drawText(data.RIESGO_7 || '', { x: mmToPt(49.66), y: yFromTop(223.2), size: 12, font });
-      page.drawText(data.MITIGACION_7 || '', { x: mmToPt(89.16), y: yFromTop(223.2), size: 12, font });
-
-      // Descargar el PDF
-      const pdfBytes = await pdfDoc.save();
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'diagnostico-empresarial.pdf';
-      link.click();
-    }
-
-    // Ejemplo de uso:
-    // fillPdf({
-    //   NOMBRE_EMPRESA: 'Envision Life',
-    //   NOMBRE_CONTACTO: 'Arturo Flores',
-    //   ...
-    // });
-    </script>
-    <!-- ================== FIN PDF-LIB.js ================== -->
-
-    <!-- ================== PROMPT SUGERIDO PARA LA IA (PARA GENERAR EL JSON DE CAMPOS DEL PDF) ================== -->
-    <!--
-    Eres un asistente experto en diagnóstico empresarial. Analiza la información proporcionada y responde únicamente con un bloque JSON que contenga los siguientes campos, usando exactamente estos nombres de variable y sin agregar ningún texto adicional fuera del bloque JSON:
-
-    {
-      "NOMBRE_EMPRESA": "",
-      "NOMBRE_CONTACTO": "",
-      "ROL_ACTUAL": "",
-      "SECTOR": "",
-      "NUMERO_EMPLEADOS": "",
-      "DESCRIPCION_NEGOCIO": "",
-      "PERSONAS_INDISPENSABLES": "",
-      "ANTIGUEDAD_NEGOCIO": "",
-      "TIPO_SOCIEDAD": "",
-      "MONTO_PROYECTOS": "",
-      "CORTO_PLAZO_1": "",
-      "CORTO_PLAZO_2": "",
-      "CORTO_PLAZO_3": "",
-      "MEDIANO_PLAZO_1": "",
-      "MEDIANO_PLAZO_2": "",
-      "MEDIANO_PLAZO_3": "",
-      "LARGO_PLAZO_1": "",
-      "LARGO_PLAZO_2": "",
-      "LARGO_PLAZO_3": "",
-      "RESUMEN_EJECUTIVO": "",
-      "MODELO_NEGOCIOS": "",
-      "ESTRATEIGAS_MARKETING": "",
-      "GOBIERNO_CORPORATIVO": "",
-      "PLANIFICACION_FISCAL": "",
-      "CORTO_PLAZO_DESGLOSE": "",
-      "MEDIANO_PLAZO_DESGLOSE": "",
-      "LARGO_PLAZO_DESGLOSE": "",
-      "RECOMENDACIONES_ESPECIFICAS": "",
-      "ESTRATEGIA_1": "",
-      "RIESGO_1": "",
-      "MITIGACION_1": "",
-      "ESTRATEGIA_2": "",
-      "RIESGO_2": "",
-      "MITIGACION_2": "",
-      "ESTRATEGIA_3": "",
-      "RIESGO_3": "",
-      "MITIGACION_3": "",
-      "ESTRATEGIA_4": "",
-      "RIESGO_4": "",
-      "MITIGACION_4": "",
-      "ESTRATEGIA_5": "",
-      "RIESGO_5": "",
-      "MITIGACION_5": "",
-      "ESTRATEGIA_6": "",
-      "RIESGO_6": "",
-      "MITIGACION_6": "",
-      "ESTRATEGIA_7": "",
-      "RIESGO_7": "",
-      "MITIGACION_7": ""
-    }
-    -->
-    <!-- ================== FIN PROMPT SUGERIDO PARA LA IA ================== -->
 </body>
 </html>
