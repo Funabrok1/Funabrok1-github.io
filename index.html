@@ -161,6 +161,31 @@
             background-color: #00395a !important;
         }
         /* --- FIN COLORES CORPORATIVOS FORMULARIO --- */
+        .bloque-reporte {
+          background: #fff !important;
+          border: 2px solid #00395a !important;
+          border-radius: 16px !important;
+          padding: 1.5rem !important;
+          margin-bottom: 2rem !important;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .bloque-reporte h2, .bloque-reporte h3, .bloque-reporte h4 {
+          color: #00395a !important;
+          margin-top: 0;
+        }
+        .bloque-reporte strong, .bloque-reporte .font-semibold, .bloque-reporte .font-bold {
+          color: #021524 !important;
+        }
+        .bloque-reporte, .bloque-reporte * {
+          color: #111827 !important;
+        }
+        .bloque-reporte table th {
+          background: #00395a !important;
+          color: #fff !important;
+        }
+        .bloque-reporte table td {
+          border-top: 1px solid #006599 !important;
+        }
     </style>
     <style>
     #diagnosisForm {
@@ -401,8 +426,8 @@
                 <!-- AI Analysis -->
                 <div id="aiAnalysisContainer">
                     <h4 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-3">Análisis y Recomendación de IA</h4>
-                    <div id="timelineContainer" class="mb-8 hidden"></div> <!-- NEW TIMELINE CONTAINER -->
-                    <div id="aiAnalysisOutput" class="prose max-w-none text-gray-700"></div>
+                    <div id="timelineContainer" class="bloque-reporte mb-8 hidden"></div> <!-- NEW TIMELINE CONTAINER -->
+                    <div id="aiAnalysisOutput" class="bloque-reporte prose max-w-none text-gray-700"></div>
                 </div>
                 
                  <!-- Clarification Questions State -->
