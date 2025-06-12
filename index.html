@@ -203,76 +203,86 @@
                         <div><label for="email_contacto" class="block text-sm font-medium text-gray-700 mb-1">Email de Contacto</label><input type="email" id="email_contacto" name="email_contacto" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="ejemplo@empresa.com" required></div>
                         <div><label for="telefono_contacto" class="block text-sm font-medium text-gray-700 mb-1">Teléfono de Contacto</label><input type="tel" id="telefono_contacto" name="telefono_contacto" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: +34 612345678" required></div>
                     </div>
-                    <!-- Botones de navegación movidos aquí -->
-                    <div class="flex justify-end pt-4">
-                        <button type="button" id="prevBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg transition-colors">Anterior</button>
-                        <button type="button" id="nextBtn" class="ml-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">Siguiente</button>
-                        <button type="submit" id="submitBtn" class="ml-2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition-colors hidden">Generar Diagnóstico</button>
-                    </div>
                 </div>
 
                 <!-- Step 2: Gobierno, Marketing y Posicionamiento -->
                 <div id="step-2" class="form-step">
                     <h2 class="text-xl font-semibold mb-6 border-l-4 border-blue-500 pl-4">Fase 2: Estructura, Gobierno y Marketing</h2>
                     
-                    <h3 class="text-lg font-medium text-gray-800 mt-6 mb-4">Estructura Legal y Gobierno Corporativo</h3>
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Sociedad</label>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                             <div class="flex items-center"><input type="radio" id="ts_autonomo" name="tipo_sociedad" value="Autónomo" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required><label for="ts_autonomo" class="ml-2 text-sm text-gray-700">Autónomo</label></div>
-                             <div class="flex items-center"><input type="radio" id="ts_sl" name="tipo_sociedad" value="S.L." class="h-4 w-4 text-blue-600 focus:ring-blue-500"><label for="ts_sl" class="ml-2 text-sm text-gray-700">S.L.</label></div>
-                             <div class="flex items-center"><input type="radio" id="ts_sa" name="tipo_sociedad" value="S.A." class="h-4 w-4 text-blue-600 focus:ring-blue-500"><label for="ts_sa" class="ml-2 text-sm text-gray-700">S.A.</label></div>
-                             <div class="flex items-center"><input type="radio" id="ts_sapi" name="tipo_sociedad" value="S.A.P.I." class="h-4 w-4 text-blue-600 focus:ring-blue-500"><label for="ts_sapi" class="ml-2 text-sm text-gray-700">S.A.P.I.</label></div>
-                             <div class="flex items-center"><input type="radio" id="ts_otro" name="tipo_sociedad" value="Otro" class="h-4 w-4 text-blue-600 focus:ring-blue-500"><label for="ts_otro" class="ml-2 text-sm text-gray-700">Otro</label></div>
-                        </div>
-                    </div>
-
+                    <h3 class="text-lg font-medium text-gray-800 mt-6 mb-4">Gobierno Corporativo y Formalidad</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div><label for="nivel_formalidad_corporativa" class="block text-sm font-medium text-gray-700 mb-2">Nivel de formalidad</label><input type="range" id="nivel_formalidad_corporativa" name="nivel_formalidad_corporativa" min="1" max="10" value="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"><div class="flex justify-between text-xs px-1 mt-1"><span>Bajo</span><span>Medio</span><span>Alto</span></div></div>
-                        <div><label for="existencia_contratos" class="block text-sm font-medium text-gray-700 mb-1">¿Cuentan con contratos claros?</label><select id="existencia_contratos" name="existencia_contratos" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="si">Sí, con proveedores, clientes y empleados</option><option value="parcialmente">Parcialmente</option><option value="no">No, son informales</option></select></div>
-                        <div><label for="propiedad_intelectual_registrada" class="block text-sm font-medium text-gray-700 mb-1">¿Han registrado patentes o marcas?</label><select id="propiedad_intelectual_registrada" name="propiedad_intelectual_registrada" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="si">Sí</option><option value="en_proceso">En proceso</option><option value="no">No</option></select></div>
-                        <div class="md:col-span-2"><label for="gestion_compliance" class="block text-sm font-medium text-gray-700 mb-1">Gestión de cumplimiento normativo (Compliance)</label><textarea id="gestion_compliance" name="gestion_compliance" rows="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Manual interno, asesor externo..." required></textarea></div>
-                        <fieldset class="mb-4">
-                          <legend class="block text-sm font-medium text-gray-700 mb-2">¿Protocolos de gobierno corporativo?</legend>
-                          <div class="flex space-x-4 mt-2">
-                            <div class="flex items-center">
-                              <input type="radio" id="gobSi" name="protocolos_gobierno" value="Sí" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required>
-                              <label for="gobSi" class="ml-2 text-sm text-gray-700">Sí</label>
+                        <!-- Columna 1 -->
+                        <div>
+                            <label for="nivel_formalidad_corporativa" class="block text-sm font-medium text-gray-700 mb-2">Nivel de formalidad</label>
+                            <input type="range" id="nivel_formalidad_corporativa" name="nivel_formalidad_corporativa" min="1" max="10" value="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="flex justify-between text-xs px-1 mt-1"><span>Bajo</span><span>Medio</span><span>Alto</span></div>
+                        </div>
+                        <div>
+                            <label for="existencia_contratos" class="block text-sm font-medium text-gray-700 mb-1">¿Cuentan con contratos claros?</label>
+                            <select id="existencia_contratos" name="existencia_contratos" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+                                <option value="">Seleccione</option>
+                                <option value="si">Sí, con proveedores, clientes y empleados</option>
+                                <option value="parcialmente">Parcialmente</option>
+                                <option value="no">No, son informales</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="propiedad_intelectual_registrada" class="block text-sm font-medium text-gray-700 mb-1">¿Han registrado patentes o marcas?</label>
+                            <select id="propiedad_intelectual_registrada" name="propiedad_intelectual_registrada" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+                                <option value="">Seleccione</option>
+                                <option value="si">Sí</option>
+                                <option value="en_proceso">En proceso</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="gestion_compliance" class="block text-sm font-medium text-gray-700 mb-1">Gestión de cumplimiento normativo (Compliance)</label>
+                            <textarea id="gestion_compliance" name="gestion_compliance" rows="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Manual interno, asesor externo..." required></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">¿Protocolos de gobierno corporativo?</label>
+                            <div class="flex space-x-4 mt-2">
+                                <div class="flex items-center">
+                                    <input type="radio" id="gobSi" name="protocolos_gobierno" value="Sí" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required>
+                                    <label for="gobSi" class="ml-2 text-sm text-gray-700">Sí</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="gobNo" name="protocolos_gobierno" value="No" class="h-4 w-4 text-blue-600 focus:ring-blue-500">
+                                    <label for="gobNo" class="ml-2 text-sm text-gray-700">No</label>
+                                </div>
                             </div>
-                            <div class="flex items-center">
-                              <input type="radio" id="gobNo" name="protocolos_gobierno" value="No" class="h-4 w-4 text-blue-600 focus:ring-blue-500">
-                              <label for="gobNo" class="ml-2 text-sm text-gray-700">No</label>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">¿Plan de sucesión definido?</label>
+                            <div class="flex space-x-4 mt-2">
+                                <div class="flex items-center">
+                                    <input type="radio" id="sucSi" name="plan_sucesion_definido" value="Sí" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required>
+                                    <label for="sucSi" class="ml-2 text-sm text-gray-700">Sí</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="sucNo" name="plan_sucesion_definido" value="No" class="h-4 w-4 text-blue-600 focus:ring-blue-500">
+                                    <label for="sucNo" class="ml-2 text-sm text-gray-700">No</label>
+                                </div>
                             </div>
-                          </div>
-                        </fieldset>
-                        <div><label class="block text-sm font-medium text-gray-700 mb-2">¿Plan de sucesión definido?</label>
-                        <fieldset class="mb-4">
-                          <legend class="block text-sm font-medium text-gray-700 mb-2">¿Plan de sucesión definido?</legend>
-                          <div class="flex space-x-4 mt-2">
-                            <div class="flex items-center">
-                              <input type="radio" id="sucSi" name="plan_sucesion_definido" value="Sí" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required>
-                              <label for="sucSi" class="ml-2 text-sm text-gray-700">Sí</label>
+                        </div>
+                        <div>
+                            <label for="nivel_cumplimiento_fiscal" class="block text-sm font-medium text-gray-700 mb-2">Nivel de cumplimiento fiscal</label>
+                            <input type="range" id="nivel_cumplimiento_fiscal" name="nivel_cumplimiento_fiscal" min="1" max="5" value="3" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="flex justify-between text-xs px-1 mt-1"><span>Bajo</span><span>Medio</span><span>Alto</span></div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">¿Asesoría legal y fiscal permanente?</label>
+                            <div class="flex space-x-4 mt-2">
+                                <div class="flex items-center">
+                                    <input type="radio" id="aseSi" name="asesoria_legal_permanente" value="Sí" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required>
+                                    <label for="aseSi" class="ml-2 text-sm text-gray-700">Sí</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="aseNo" name="asesoria_legal_permanente" value="No" class="h-4 w-4 text-blue-600 focus:ring-blue-500">
+                                    <label for="aseNo" class="ml-2 text-sm text-gray-700">No</label>
+                                </div>
                             </div>
-                            <div class="flex items-center">
-                              <input type="radio" id="sucNo" name="plan_sucesion_definido" value="No" class="h-4 w-4 text-blue-600 focus:ring-blue-500">
-                              <label for="sucNo" class="ml-2 text-sm text-gray-700">No</label>
-                            </div>
-                          </div>
-                        </fieldset>
-                        <div><label for="nivel_cumplimiento_fiscal" class="block text-sm font-medium text-gray-700 mb-2">Nivel de cumplimiento fiscal</label><input type="range" id="nivel_cumplimiento_fiscal" name="nivel_cumplimiento_fiscal" min="1" max="5" value="3" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"><div class="flex justify-between text-xs px-1 mt-1"><span>Bajo</span><span>Medio</span><span>Alto</span></div></div>
-                        <fieldset class="mb-4">
-                          <legend class="block text-sm font-medium text-gray-700 mb-2">¿Asesoría legal y fiscal permanente?</legend>
-                          <div class="flex space-x-4 mt-2">
-                            <div class="flex items-center">
-                              <input type="radio" id="aseSi" name="asesoria_legal_permanente" value="Sí" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required>
-                              <label for="aseSi" class="ml-2 text-sm text-gray-700">Sí</label>
-                            </div>
-                            <div class="flex items-center">
-                              <input type="radio" id="aseNo" name="asesoria_legal_permanente" value="No" class="h-4 w-4 text-blue-600 focus:ring-blue-500">
-                              <label for="aseNo" class="ml-2 text-sm text-gray-700">No</label>
-                            </div>
-                          </div>
-                        </fieldset>
+                        </div>
                     </div>
                     
                     <h3 class="text-lg font-medium text-gray-800 mt-8 mb-4">Marketing y Posicionamiento</h3>
@@ -329,20 +339,20 @@
                 <div id="step-5" class="form-step">
                     <h2 class="text-xl font-semibold mb-6 border-l-4 border-blue-500 pl-4">Fase 5: Proyectos Futuros y Liquidez</h2>
                     <div class="grid grid-cols-1 gap-6">
-                        <div><label for="proyectos_futuros_empresa" class="block text-sm font-medium text-gray-700 mb-1">Proyectos importantes para los próximos 3-5 años</label><textarea id="proyectos_futuros_empresa" name="proyectos_futuros_empresa" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Expansión, compra de maquinaria, salida de socio..." required></textarea></div>
+                        <div><label for="proyectos_futuros_empresa" class="block text-sm font-medium text-gray-700 mb-1">Proyectos importantes para los próximos 5-10 años</label><textarea id="proyectos_futuros_empresa" name="proyectos_futuros_empresa" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Expansión, compra de maquinaria, salida de socio..." required></textarea></div>
                         <div><label for="metodo_fondeo_proyectos" class="block text-sm font-medium text-gray-700 mb-1">¿Cómo están fondeando o planean fondear esos planes?</label><select id="metodo_fondeo_proyectos" name="metodo_fondeo_proyectos" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="utilidades">Utilidades</option><option value="credito">Crédito</option><option value="inversionistas">Inversionistas</option><option value="estrategia_liquidez">Construyendo liquidez estratégica</option><option value="no_definido">No definido</option></select></div>
                         <div><label for="reservas_empresariales" class="block text-sm font-medium text-gray-700 mb-1">¿Cuentan con fondos o reservas empresariales específicas?</label><select id="reservas_empresariales" name="reservas_empresariales" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="si">Sí, para proyectos específicos</option><option value="si_generales">Sí, pero son generales (no específicas)</option><option value="no">No, no contamos con reservas</option></select></div>
                     </div>
                 </div>
                 
-                <!-- Navigation Buttons -->
-                <div class="relative">
-                    <div id="validationMessage" class="hidden text-center text-red-600 mb-4 text-sm">Por favor, complete todos los campos requeridos antes de continuar.</div>
-                    <div class="flex justify-between pt-4 border-t">
-                        <button type="button" id="prevBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg transition-colors">Anterior</button>
-                        <button type="button" id="nextBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">Siguiente</button>
-                        <button type="submit" id="submitBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition-colors hidden">Generar Diagnóstico</button>
-                    </div>
+                <!-- Botones de navegación al final del formulario -->
+                <div id="validationMessage" class="hidden text-center text-red-600 mb-4 text-sm">
+                    Por favor, complete todos los campos requeridos antes de continuar.
+                </div>
+                <div class="flex justify-end pt-8">
+                    <button type="button" id="prevBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg transition-colors">Anterior</button>
+                    <button type="button" id="nextBtn" class="ml-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">Siguiente</button>
+                    <button type="submit" id="submitBtn" class="ml-2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition-colors hidden">Generar Diagnóstico</button>
                 </div>
             </form>
         </div>
@@ -470,7 +480,7 @@
                 'situacion_utilidad_fiscal': 'Situación de la utilidad fiscal',
                 'gestion_flujo_efectivo': 'Desafíos en flujo de efectivo', 'conocimiento_coeficiente_utilidad': 'Conocimiento del coeficiente de utilidad', 'uso_principal_utilidades': 'Uso principal de las utilidades',
                 'metodo_pago_directivos': 'Método de compensación a directivos/socios', 'estrategias_fiscales_actuales': 'Estrategia actual para reducir carga de ISR o PTU',
-                'proyectos_futuros_empresa': 'Proyectos importantes para los próximos 3-5 años', 'metodo_fondeo_proyectos': 'Método de fondeo para proyectos', 'reservas_empresariales': 'Existencia de fondos o reservas empresariales'
+                'proyectos_futuros_empresa': 'Proyectos importantes para los próximos 5-10 años', 'metodo_fondeo_proyectos': 'Método de fondeo para proyectos', 'reservas_empresariales': 'Existencia de fondos o reservas empresariales'
             };
 
             function generateGeminiPrompt(data) {
@@ -1302,3 +1312,4 @@
     </script>
 </body>
 </html>
+
