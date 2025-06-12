@@ -211,7 +211,31 @@
                     
                     <h3 class="text-lg font-medium text-gray-800 mt-6 mb-4">Gobierno Corporativo y Formalidad</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Columna 1 -->
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Sociedad</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                                <div class="flex items-center">
+                                    <input type="radio" id="ts_autonomo" name="tipo_sociedad" value="Autónomo" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required>
+                                    <label for="ts_autonomo" class="ml-2 text-sm text-gray-700">Autónomo</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="ts_sl" name="tipo_sociedad" value="S.L." class="h-4 w-4 text-blue-600 focus:ring-blue-500">
+                                    <label for="ts_sl" class="ml-2 text-sm text-gray-700">S.L.</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="ts_sa" name="tipo_sociedad" value="S.A." class="h-4 w-4 text-blue-600 focus:ring-blue-500">
+                                    <label for="ts_sa" class="ml-2 text-sm text-gray-700">S.A.</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="ts_sapi" name="tipo_sociedad" value="S.A.P.I." class="h-4 w-4 text-blue-600 focus:ring-blue-500">
+                                    <label for="ts_sapi" class="ml-2 text-sm text-gray-700">S.A.P.I.</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="ts_otro" name="tipo_sociedad" value="Otro" class="h-4 w-4 text-blue-600 focus:ring-blue-500">
+                                    <label for="ts_otro" class="ml-2 text-sm text-gray-700">Otro</label>
+                                </div>
+                            </div>
+                        </div>
                         <div>
                             <label for="nivel_formalidad_corporativa" class="block text-sm font-medium text-gray-700 mb-2">Nivel de formalidad</label>
                             <input type="range" id="nivel_formalidad_corporativa" name="nivel_formalidad_corporativa" min="1" max="10" value="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
@@ -1312,4 +1336,3 @@
     </script>
 </body>
 </html>
-
