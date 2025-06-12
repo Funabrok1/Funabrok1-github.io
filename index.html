@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Diagnóstico de Blindaje Empresarial</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://css.gg/css?=|check-o|close-o" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- PDF Generation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(rgba(12, 15, 26, 0.7), rgba(12, 15, 26, 0.7)), url('https://i.ibb.co/mCCfbmt8/fondo-envision.webp');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #00395a;
+            cursor: pointer;
+            border-radius: 50%;
+            margin-top: -6px;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #00395a;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .form-step { display: none; }
+        .form-step-active { display: block; }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3b82f6;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Estilos para el contenido del reporte */
+        #aiAnalysisOutput h1, #aiAnalysisOutput h2, #aiAnalysisOutput h3,
+        #aiAnalysisOutput table, #aiAnalysisOutput ul, #aiAnalysisOutput ol {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+        /* Estilo para los textareas autoajustables y corrección de color */
+        textarea, 
+        input[type="text"], 
+        input[type="number"],
+        input[type="email"],
+        input[type="tel"],
+        select {
+            resize: none;
+            overflow-y: hidden;
+            background-color: #ffffff !important; /* Fondo blanco */
+            color: #111827 !important; /* Texto oscuro */
+            -webkit-text-fill-color: #111827 !important; /* Forzar color de texto en WebKit */
+         }
+        /* Estilo para el texto de placeholder */
+        ::placeholder {
+            color: #a0aec0 !important; /* Gris claro */
+            opacity: 1; 
+        }
+        .border-red-500 {
+            border-color: #ef4444;
+        }
+        /* --- COLORES CORPORATIVOS PARA EL REPORTE --- */
+        #reportModal h1, #reportModal h2, #reportModal h3, #reportModal h4, #reportModal h5, #reportModal h6 {
+            color: #00395a !important;
+            text-align: left !important;
+        }
+        #reportModal strong, #reportModal .font-semibold, #reportModal .font-bold {
+            color: #021524 !important;
+        }
+        #reportModal .border-blue-500, #reportModal .border-blue-600, #reportModal .border-blue-300, #reportModal .bg-blue-600 {
+            border-color: #006599 !important;
+            background-color: #006599 !important;
+        }
+        #reportModal .text-blue-600 {
+            color: #006599 !important;
+        }
+        #reportModal .divide-blue-300 {
+            border-color: #006599 !important;
+        }
+        #reportModal .border-t {
+            border-top: 2px solid #006599 !important;
+        }
+        #reportModal .rounded-lg, #reportModal .rounded-2xl {
+            border-radius: 18px !important;
+        }
+        #reportModal .overflow-x-auto table th {
+            background: #00395a !important;
+            color: #fff !important;
+        }
+        #reportModal .overflow-x-auto table td {
+            border-top: 1px solid #006599 !important;
+        }
+        /* Forzar alineación a la izquierda en todo el contenido del reporte */
+        #reportContent, #reportContent * {
+            text-align: left !important;
+        }
+        /* --- FIN COLORES CORPORATIVOS --- */
+        /* --- COLORES CORPORATIVOS PARA EL FORMULARIO --- */
+        /* Barra vertical antes de los títulos de fase */
+        .border-blue-500 {
+            border-color: #00395a !important;
+        }
+        /* Botones principales y secundarios */
+        #diagnosisForm button,
+        #diagnosisForm .bg-blue-600,
+        #diagnosisForm .bg-green-600,
+        #diagnosisForm .bg-gray-300,
+        #diagnosisForm .hover\:bg-gray-400:hover {
+            background-color: #00395a !important;
+            border-color: #00395a !important;
+            color: #fff !important;
+        }
+        #diagnosisForm button:hover,
+        #diagnosisForm .bg-blue-700:hover,
+        #diagnosisForm .bg-green-700:hover {
+            background-color: #021524 !important;
+            border-color: #021524 !important;
+        }
+        /* Slider thumb y barra activa */
+        input[type="range"]::-webkit-slider-thumb {
+            background: #00395a !important;
+        }
+        input[type="range"]::-moz-range-thumb {
+            background: #00395a !important;
+        }
+        #progressBar {
+            background-color: #00395a !important;
+        }
+        /* Botón Anterior: texto blanco siempre */
+        #prevBtn {
+            color: #fff !important;
+        }
+        /* Línea de avance de pasos */
+        #progressBar {
+            background-color: #00395a !important;
+        }
+        /* --- FIN COLORES CORPORATIVOS FORMULARIO --- */
+    </style>
+</head>
+<body class="antialiased text-gray-800">
+
+    <div id="diagnostico-container" class="container mx-auto p-4 sm:p-8 max-w-4xl">
+        
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div class="p-8">
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 text-center">Diagnóstico de Blindaje Empresarial</h1>
+                <p class="text-center text-gray-600 mt-2">Complete este formulario para analizar las áreas clave de su negocio.</p>
+            </div>
+
+            <div class="px-8 pb-4">
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-in-out" style="width: 20%"></div>
+                </div>
+                <div id="stepCounter" class="text-center text-sm text-gray-500 mt-2">Paso 1 de 5</div>
+            </div>
+
+            <form id="diagnosisForm" class="p-8 space-y-8" novalidate>
+                <!-- Step 1: Contexto General -->
+                <div id="step-1" class="form-step form-step-active">
+                    <h2 class="text-xl font-semibold mb-6 border-l-4 border-blue-500 pl-4">Fase 1: Información General y Contexto</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label for="nombre_empresa" class="block text-sm font-medium text-gray-700 mb-1">Nombre de la Empresa</label><input type="text" id="nombre_empresa" name="nombre_empresa" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ingrese el nombre de su empresa" required></div>
+                        <div><label for="sector" class="block text-sm font-medium text-gray-700 mb-1">Sector</label><select id="sector" name="sector" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione un sector</option><option value="tecnologia">Tecnología</option><option value="retail">Retail</option><option value="manufactura">Manufactura</option><option value="servicios">Servicios</option><option value="salud">Salud</option><option value="otro">Otro</option></select></div>
+                        <div class="md:col-span-2"><label for="descripcion_negocio" class="block text-sm font-medium text-gray-700 mb-1">Descripción del Negocio</label><textarea id="descripcion_negocio" name="descripcion_negocio" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Describa brevemente a qué se dedica su empresa" required></textarea></div>
+                        <div><label for="antiguedad_empresa" class="block text-sm font-medium text-gray-700 mb-1">¿Cuándo empezó operaciones su empresa?</label><input type="text" id="antiguedad_empresa" name="antiguedad_empresa" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Enero 2020" required></div>
+                        <div><label for="numero_empleados" class="block text-sm font-medium text-gray-700 mb-1">Número de empleados actuales</label><input type="number" id="numero_empleados" name="numero_empleados" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: 25" required></div>
+                        <div><label for="puesto_usuario" class="block text-sm font-medium text-gray-700 mb-1">Su rol o posición actual</label><input type="text" id="puesto_usuario" name="puesto_usuario" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Director General, Fundador, etc." required></div>
+                        <div class="md:col-span-2"><label for="mayor_reto_superado" class="block text-sm font-medium text-gray-700 mb-1">Mayor reto que han enfrentado y cómo lo superaron</label><textarea id="mayor_reto_superado" name="mayor_reto_superado" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Describa una situación desafiante y su resolución" required></textarea></div>
+                        <div class="md:col-span-2"><label for="hito_mas_importante" class="block text-sm font-medium text-gray-700 mb-1">Mayor aprendizaje o hito más importante en su crecimiento</label><textarea id="hito_mas_importante" name="hito_mas_importante" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Comparta un momento clave para su empresa" required></textarea></div>
+                        <h3 class="md:col-span-2 text-lg font-medium text-gray-800 mt-4 -mb-2">Información de Contacto</h3>
+                        <div><label for="nombre_contacto" class="block text-sm font-medium text-gray-700 mb-1">Nombre de Contacto</label><input type="text" id="nombre_contacto" name="nombre_contacto" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Nombre completo" required></div>
+                        <div><label for="email_contacto" class="block text-sm font-medium text-gray-700 mb-1">Email de Contacto</label><input type="email" id="email_contacto" name="email_contacto" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="ejemplo@empresa.com" required></div>
+                        <div><label for="telefono_contacto" class="block text-sm font-medium text-gray-700 mb-1">Teléfono de Contacto</label><input type="tel" id="telefono_contacto" name="telefono_contacto" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: +34 612345678" required></div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Gobierno, Marketing y Posicionamiento -->
+                <div id="step-2" class="form-step">
+                    <h2 class="text-xl font-semibold mb-6 border-l-4 border-blue-500 pl-4">Fase 2: Estructura, Gobierno y Marketing</h2>
+                    
+                    <h3 class="text-lg font-medium text-gray-800 mt-6 mb-4">Estructura Legal y Gobierno Corporativo</h3>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Sociedad</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                             <div class="flex items-center"><input type="radio" id="ts_autonomo" name="tipo_sociedad" value="Autónomo" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required><label for="ts_autonomo" class="ml-2 text-sm text-gray-700">Autónomo</label></div>
+                             <div class="flex items-center"><input type="radio" id="ts_sl" name="tipo_sociedad" value="S.L." class="h-4 w-4 text-blue-600 focus:ring-blue-500"><label for="ts_sl" class="ml-2 text-sm text-gray-700">S.L.</label></div>
+                             <div class="flex items-center"><input type="radio" id="ts_sa" name="tipo_sociedad" value="S.A." class="h-4 w-4 text-blue-600 focus:ring-blue-500"><label for="ts_sa" class="ml-2 text-sm text-gray-700">S.A.</label></div>
+                             <div class="flex items-center"><input type="radio" id="ts_sapi" name="tipo_sociedad" value="S.A.P.I." class="h-4 w-4 text-blue-600 focus:ring-blue-500"><label for="ts_sapi" class="ml-2 text-sm text-gray-700">S.A.P.I.</label></div>
+                             <div class="flex items-center"><input type="radio" id="ts_otro" name="tipo_sociedad" value="Otro" class="h-4 w-4 text-blue-600 focus:ring-blue-500"><label for="ts_otro" class="ml-2 text-sm text-gray-700">Otro</label></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label for="nivel_formalidad_corporativa" class="block text-sm font-medium text-gray-700 mb-2">Nivel de formalidad</label><input type="range" id="nivel_formalidad_corporativa" name="nivel_formalidad_corporativa" min="1" max="10" value="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"><div class="flex justify-between text-xs px-1 mt-1"><span>Bajo</span><span>Medio</span><span>Alto</span></div></div>
+                        <div><label for="existencia_contratos" class="block text-sm font-medium text-gray-700 mb-1">¿Cuentan con contratos claros?</label><select id="existencia_contratos" name="existencia_contratos" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="si">Sí, con proveedores, clientes y empleados</option><option value="parcialmente">Parcialmente</option><option value="no">No, son informales</option></select></div>
+                        <div><label for="propiedad_intelectual_registrada" class="block text-sm font-medium text-gray-700 mb-1">¿Han registrado patentes o marcas?</label><select id="propiedad_intelectual_registrada" name="propiedad_intelectual_registrada" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="si">Sí</option><option value="en_proceso">En proceso</option><option value="no">No</option></select></div>
+                        <div class="md:col-span-2"><label for="gestion_compliance" class="block text-sm font-medium text-gray-700 mb-1">Gestión de cumplimiento normativo (Compliance)</label><textarea id="gestion_compliance" name="gestion_compliance" rows="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Manual interno, asesor externo..." required></textarea></div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-2">¿Protocolos de gobierno corporativo?</label><div class="flex space-x-4 mt-2"><div class="flex items-center"><input type="radio" id="gobSi" name="protocolos_gobierno" value="Sí" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required><label for="gobSi" class="ml-2 text-sm text-gray-700">Sí</label></div><div class="flex items-center"><input type="radio" id="gobNo" name="protocolos_gobierno" value="No" class="h-4 w-4 text-blue-600 focus:ring-blue-500"><label for="gobNo" class="ml-2 text-sm text-gray-700">No</label></div></div></div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-2">¿Plan de sucesión definido?</label><div class="flex space-x-4 mt-2"><div class="flex items-center"><input type="radio" id="sucSi" name="plan_sucesion_definido" value="Sí" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required><label for="sucSi" class="ml-2 text-sm text-gray-700">Sí</label></div><div class="flex items-center"><input type="radio" id="sucNo" name="plan_sucesion_definido" value="No" class="h-4 w-4 text-blue-600 focus:ring-blue-500"><label for="sucNo" class="ml-2 text-sm text-gray-700">No</label></div></div></div>
+                        <div><label for="nivel_cumplimiento_fiscal" class="block text-sm font-medium text-gray-700 mb-2">Nivel de cumplimiento fiscal</label><input type="range" id="nivel_cumplimiento_fiscal" name="nivel_cumplimiento_fiscal" min="1" max="5" value="3" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"><div class="flex justify-between text-xs px-1 mt-1"><span>Bajo</span><span>Medio</span><span>Alto</span></div></div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-2">¿Asesoría legal y fiscal permanente?</label><div class="flex space-x-4 mt-2"><div class="flex items-center"><input type="radio" id="aseSi" name="asesoria_legal_permanente" value="Sí" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required><label for="aseSi" class="ml-2 text-sm text-gray-700">Sí</label></div><div class="flex items-center"><input type="radio" id="aseNo" name="asesoria_legal_permanente" value="No" class="h-4 w-4 text-blue-600 focus:ring-blue-500"><label for="aseNo" class="ml-2 text-sm text-gray-700">No</label></div></div></div>
+                    </div>
+                    
+                    <h3 class="text-lg font-medium text-gray-800 mt-8 mb-4">Marketing y Posicionamiento</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label for="giro_principal" class="block text-sm font-medium text-gray-700 mb-1">Giro principal del negocio</label><textarea id="giro_principal" name="giro_principal" rows="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Manufactura, Servicios TI, Retail..." required></textarea></div>
+                        <div><label for="posicionamiento_mercado" class="block text-sm font-medium text-gray-700 mb-1">Posicionamiento frente a la competencia</label><textarea id="posicionamiento_mercado" name="posicionamiento_mercado" rows="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Líder en precio, nicho de alta calidad..." required></textarea></div>
+                        <div class="md:col-span-2"><label for="estrategias_marketing" class="block text-sm font-medium text-gray-700 mb-1">Estrategias de marketing (digital o tradicional)</label><textarea id="estrategias_marketing" name="estrategias_marketing" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Redes sociales, SEO, ferias comerciales..." required></textarea></div>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Estructura, Socios y Protección -->
+                <div id="step-3" class="form-step">
+                    <h2 class="text-xl font-semibold mb-6 border-l-4 border-blue-500 pl-4">Fase 3: Estructura, Socios y Protección</h2>
+                    
+                    <h3 class="text-lg font-medium text-gray-800 mt-6 mb-4">Estructura y Socios</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label for="tipo_empresa" class="block text-sm font-medium text-gray-700 mb-1">Tipo de empresa</label><select id="tipo_empresa" name="tipo_empresa" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="familiar">Familiar</option><option value="socios_externos">Con socios externos</option><option value="unico_dueno">Único dueño</option></select></div>
+                        <div id="sociosFields" class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 hidden">
+                            <div><label for="numero_socios" class="block text-sm font-medium text-gray-700 mb-1">Número de socios</label><input type="number" id="numero_socios" name="numero_socios" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: 3"></div>
+                            <div><label for="acuerdos_entre_socios" class="block text-sm font-medium text-gray-700 mb-1">¿Existen acuerdos formales entre socios?</label><select id="acuerdos_entre_socios" name="acuerdos_entre_socios" class="w-full px-4 py-2 border border-gray-300 rounded-lg"><option value="">Seleccione</option><option value="si_formales">Sí, formales y por escrito</option><option value="informales">Sí, pero son informales</option><option value="no">No existen acuerdos</option></select></div>
+                        </div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-2">¿Separación de patrimonio personal y empresarial?</label><div class="flex space-x-4 mt-2"><div class="flex items-center"><input type="radio" id="sepSi" name="separacion_patrimonio" value="Sí" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required><label for="sepSi" class="ml-2 text-sm">Sí</label></div><div class="flex items-center"><input type="radio" id="sepNo" name="separacion_patrimonio" value="No" class="h-4 w-4 text-blue-600 focus:ring-blue-500"><label for="sepNo" class="ml-2 text-sm">No</label></div></div></div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-2">¿Seguros de responsabilidad civil?</label><div class="flex space-x-4 mt-2"><div class="flex items-center"><input type="radio" id="segSi" name="seguro_responsabilidad" value="Sí" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required><label for="segSi" class="ml-2 text-sm">Sí</label></div><div class="flex items-center"><input type="radio" id="segNo" name="seguro_responsabilidad" value="No" class="h-4 w-4 text-blue-600 focus:ring-blue-500"><label for="segNo" class="ml-2 text-sm">No</label></div></div></div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-2">¿Estructuras de holding o similares?</label><div class="flex space-x-4 mt-2"><div class="flex items-center"><input type="radio" id="holdSi" name="estructura_holding" value="Sí" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required><label for="holdSi" class="ml-2 text-sm">Sí</label></div><div class="flex items-center"><input type="radio" id="holdNo" name="estructura_holding" value="No" class="h-4 w-4 text-blue-600 focus:ring-blue-500"><label for="holdNo" class="ml-2 text-sm">No</label></div></div></div>
+                    </div>
+                    
+                    <h3 class="text-lg font-medium text-gray-800 mt-8 mb-4">Protección y Continuidad del Negocio</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2"><label for="impacto_ausencia_persona_clave" class="block text-sm font-medium text-gray-700 mb-1">Impacto de la ausencia inesperada de una persona clave</label><textarea id="impacto_ausencia_persona_clave" name="impacto_ausencia_persona_clave" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Describa el impacto en la operación, finanzas, etc." required></textarea></div>
+                        <div class="md:col-span-2"><label for="lista_personas_clave" class="block text-sm font-medium text-gray-700 mb-1">Personas indispensables para la operación</label><textarea id="lista_personas_clave" name="lista_personas_clave" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Liste nombres y/o puestos..." required></textarea></div>
+                        <div><label for="costo_estimado_perdida_clave" class="block text-sm font-medium text-gray-700 mb-1">Costo financiero estimado por su ausencia</label><input type="text" id="costo_estimado_perdida_clave" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: $500,000 MXN mensuales" required></div>
+                        <div><label for="plan_contingencia_existente" class="block text-sm font-medium text-gray-700 mb-1">¿Plan sucesorio o fondo de contingencia?</label><select id="plan_contingencia_existente" name="plan_contingencia_existente" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="plan_sucesorio">Sí, tenemos un plan sucesorio</option><option value="fondo_contingencia">Sí, tenemos un fondo de contingencia</option><option value="ambos">Contamos con ambos</option><option value="ninguno">Ninguno</option></select></div>
+                        <div><label for="tipo_prestaciones_empleados" class="block text-sm font-medium text-gray-700 mb-1">Prestaciones que ofrecen a empleados</label><textarea id="tipo_prestaciones_empleados" name="tipo_prestaciones_empleados" rows="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Solo las de ley, SGMM, Vales..." required></textarea></div>
+                        <div><label for="gestion_rotacion_personal" class="block text-sm font-medium text-gray-700 mb-1">¿Cómo gestionan la rotación de talento clave?</label><textarea id="gestion_rotacion_personal" name="gestion_rotacion_personal" rows="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: No tenemos plan, bonos de retención..." required></textarea></div>
+                        <div class="md:col-span-2"><label class="block text-sm font-medium text-gray-700 mb-2">¿Cuenta con seguros de personas clave?</label><div class="flex space-x-4 mt-2"><div class="flex items-center"><input type="radio" id="segPerSi" name="seguro_personas_clave" value="Sí" class="h-4 w-4 text-blue-600 focus:ring-blue-500" required><label for="segPerSi" class="ml-2 text-sm">Sí</label></div><div class="flex items-center"><input type="radio" id="segPerNo" name="seguro_personas_clave" value="No" class="h-4 w-4 text-blue-600 focus:ring-blue-500"><label for="segPerNo" class="ml-2 text-sm">No</label></div></div></div>
+                        <div class="md:col-span-2"><label for="preocupaciones_continuidad" class="block text-sm font-medium text-gray-700 mb-1">Principales preocupaciones sobre la continuidad del negocio</label><textarea id="preocupaciones_continuidad" name="preocupaciones_continuidad" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Describa sus principales preocupaciones sobre la continuidad de su negocio" required></textarea></div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Situación Financiera y Fiscal -->
+                <div id="step-4" class="form-step">
+                     <h2 class="text-xl font-semibold mb-6 border-l-4 border-blue-500 pl-4">Fase 4: Eficiencia Financiera y Fiscal</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label for="situacion_utilidad_fiscal" class="block text-sm font-medium text-gray-700 mb-1">Situación de su utilidad fiscal</label><select id="situacion_utilidad_fiscal" name="situacion_utilidad_fiscal" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="estable">Estable</option><option value="variable">Variable</option><option value="creciente">Creciente</option><option value="baja">Baja o en pérdidas</option></select></div>
+                        <div><label for="gestion_flujo_efectivo" class="block text-sm font-medium text-gray-700 mb-1">¿Tienen desafíos en su flujo de efectivo?</label><select id="gestion_flujo_efectivo" name="gestion_flujo_efectivo" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="si">Sí, frecuentemente</option><option value="ocasionalmente">Ocasionalmente</option><option value="no">No, es saludable</option></select></div>
+                        <div><label for="conocimiento_coeficiente_utilidad" class="block text-sm font-medium text-gray-700 mb-1">¿Conocen su coeficiente de utilidad?</label><select id="conocimiento_coeficiente_utilidad" name="conocimiento_coeficiente_utilidad" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="si">Sí, y lo monitoreamos</option><option value="si_pero_no">Sí, pero no lo usamos</option><option value="no">No lo conocemos</option></select></div>
+                        <div><label for="uso_principal_utilidades" class="block text-sm font-medium text-gray-700 mb-1">Uso principal de las utilidades</label><select id="uso_principal_utilidades" name="uso_principal_utilidades" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="reinversion">Reinvertir</option><option value="dividendos">Distribuir dividendos</option><option value="fondo_reserva">Guardar para imprevistos</option><option value="pago_deudas">Pagar deudas</option><option value="no_definido">No definido</option></select></div>
+                        <div><label for="metodo_pago_directivos" class="block text-sm font-medium text-gray-700 mb-1">Compensación a socios/directores</label><select id="metodo_pago_directivos" name="metodo_pago_directivos" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="sueldos">Sueldos</option><option value="honorarios">Honorarios</option><option value="dividendos">Dividendos</option><option value="mixto">Mixto</option><option value="no_definido">No se tiene definido</option></select></div>
+                        <div class="md:col-span-2"><label for="estrategias_fiscales_actuales" class="block text-sm font-medium text-gray-700 mb-1">Estrategia actual para reducir carga de ISR o PTU</label><textarea id="estrategias_fiscales_actuales" name="estrategias_fiscales_actuales" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Planes de pensiones, seguros deducibles, etc. Si no aplica, escriba 'Ninguna'." required></textarea></div>
+                    </div>
+                </div>
+                
+                <!-- Step 5: Visión a Futuro y Liquidez -->
+                <div id="step-5" class="form-step">
+                    <h2 class="text-xl font-semibold mb-6 border-l-4 border-blue-500 pl-4">Fase 5: Proyectos Futuros y Liquidez</h2>
+                    <div class="grid grid-cols-1 gap-6">
+                        <div><label for="proyectos_futuros_empresa" class="block text-sm font-medium text-gray-700 mb-1">Proyectos importantes para los próximos 3-5 años</label><textarea id="proyectos_futuros_empresa" name="proyectos_futuros_empresa" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Ej: Expansión, compra de maquinaria, salida de socio..." required></textarea></div>
+                        <div><label for="metodo_fondeo_proyectos" class="block text-sm font-medium text-gray-700 mb-1">¿Cómo están fondeando o planean fondear esos planes?</label><select id="metodo_fondeo_proyectos" name="metodo_fondeo_proyectos" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="utilidades">Utilidades</option><option value="credito">Crédito</option><option value="inversionistas">Inversionistas</option><option value="estrategia_liquidez">Construyendo liquidez estratégica</option><option value="no_definido">No definido</option></select></div>
+                        <div><label for="reservas_empresariales" class="block text-sm font-medium text-gray-700 mb-1">¿Cuentan con fondos o reservas empresariales específicas?</label><select id="reservas_empresariales" name="reservas_empresariales" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required><option value="">Seleccione</option><option value="si">Sí, para proyectos específicos</option><option value="si_generales">Sí, pero son generales (no específicas)</option><option value="no">No, no contamos con reservas</option></select></div>
+                    </div>
+                </div>
+                
+                <!-- Navigation Buttons -->
+                <div class="relative">
+                    <div id="validationMessage" class="hidden text-center text-red-600 mb-4 text-sm">Por favor, complete todos los campos requeridos antes de continuar.</div>
+                    <div class="flex justify-between pt-4 border-t">
+                        <button type="button" id="prevBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg transition-colors">Anterior</button>
+                        <button type="button" id="nextBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">Siguiente</button>
+                        <button type="submit" id="submitBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition-colors hidden">Generar Diagnóstico</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div id="reportModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white rounded-lg shadow-xl p-6 sm:p-8 max-w-4xl w-full text-left transform transition-all max-h-[90vh] flex flex-col">
+            <!-- Modal Header -->
+            <div id="reportHeader" class="flex flex-col items-center mb-4">
+                <img src="https://i.ibb.co/bh4XCmb/Envision-life.webp" alt="Logo" class="mx-auto block mb-4" style="max-width: 180px;" />
+                <h3 class="text-xl font-bold text-gray-900" style="color:#00395a !important;">Reporte de Diagnóstico Empresarial</h3>
+                <p class="text-gray-600 mt-1">Análisis integral y recomendaciones estratégicas.</p>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="loadingState" class="py-16 text-center hidden"><div class="loader mx-auto"></div><p class="mt-4 text-gray-600">Generando análisis, por favor espere...</p></div>
+
+            <!-- Report Content -->
+            <div id="reportContent" class="mt-4 space-y-6 overflow-y-auto hidden">
+                <!-- User's Diagnosis Summary --><div id="diagnosisSummaryContainer"><h4 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-3">Resumen del Diagnóstico</h4><div id="diagnosisSummaryOutput" class="text-sm space-y-2"></div></div>
+                <!-- AI Analysis -->
+                <div id="aiAnalysisContainer">
+                    <h4 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-3">Análisis y Recomendación de IA</h4>
+                    <div id="timelineContainer" class="mb-8 hidden"></div> <!-- NEW TIMELINE CONTAINER -->
+                    <div id="aiAnalysisOutput" class="prose max-w-none text-gray-700"></div>
+                </div>
+                
+                 <!-- Clarification Questions State -->
+                <div id="clarificationState" class="mt-4 space-y-6 overflow-y-auto hidden">
+                    <h4 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-3">Preguntas de Aclaración</h4>
+                    <p class="text-sm text-gray-600">La IA necesita más información para proporcionar un análisis preciso. Por favor, responda las siguientes preguntas:</p>
+                    <form id="clarificationForm" class="space-y-4">
+                        <!-- Questions will be dynamically inserted here -->
+                    </form>
+                    <button type="button" id="resubmitBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg">Reenviar y Generar Análisis</button>
+                </div>
+
+                <!-- Monday.com Form Section -->
+                <div id="supportFlowContainer" class="pt-6 mt-6 border-t hidden">
+                    <div id="downloadPrompt" class="text-center p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-2">Siguiente Paso</h4>
+                        <p class="text-sm text-gray-600">Para solicitar asesoría, primero debe descargar el reporte en PDF.</p>
+                    </div>
+
+                    <div id="mondayFormContainer" class="text-center hidden mt-4">
+                         <h4 class="text-lg font-semibold text-gray-800 mb-2">Solicitud de Asesoría</h4>
+                         <p class="text-sm text-gray-600 mb-4">¡Excelente! Ahora que tiene su reporte, puede contactar a un asesor para implementarlo.</p>
+                         <a href="https://forms.monday.com/forms/ca72b435abc536283ccfc0a2a5504466?r=use1" target="_blank" class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg text-center transition-colors">
+                            Contactar a un Asesor
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Error Message --><div id="errorState" class="text-center py-10 hidden"><p class="text-red-600">Lo sentimos, ha ocurrido un error al generar el reporte. Por favor, intente de nuevo.</p></div>
+                <!-- Imagen final corporativa -->
+                <div class="w-full mt-8 mb-4">
+                    <img src="https://i.ibb.co/BKsp7PvR/Blindaje-empresarial-2.webp" alt="Imagen final" style="width: 100%; max-width: 100%; display: block; margin: 0 auto 18px auto; border-radius: 10px;" />
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="mt-6 pt-4 border-t text-right">
+                <button type="button" id="downloadPdfBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg hidden">Descargar PDF</button>
+                <button id="closeModalBtn" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:text-sm">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- DOM Elements ---
+            const form = document.getElementById('diagnosisForm');
+            const formSteps = Array.from(document.querySelectorAll('.form-step'));
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            const progressBar = document.getElementById('progressBar');
+            const stepCounter = document.getElementById('stepCounter');
+            const validationMessage = document.getElementById('validationMessage');
+            
+            const reportModal = document.getElementById('reportModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const loadingState = document.getElementById('loadingState');
+            const reportContent = document.getElementById('reportContent');
+            const errorState = document.getElementById('errorState');
+            const diagnosisSummaryOutput = document.getElementById('diagnosisSummaryOutput');
+            const aiAnalysisOutput = document.getElementById('aiAnalysisOutput');
+            const timelineContainer = document.getElementById('timelineContainer');
+            const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+            
+            const clarificationState = document.getElementById('clarificationState');
+            const clarificationForm = document.getElementById('clarificationForm');
+            const resubmitBtn = document.getElementById('resubmitBtn');
+            
+            const supportFlowContainer = document.getElementById('supportFlowContainer');
+            const downloadPrompt = document.getElementById('downloadPrompt');
+            const mondayFormContainer = document.getElementById('mondayFormContainer');
+            
+            let currentStep = 0;
+            const totalSteps = formSteps.length;
+            let initialPrompt = '';
+            const fieldLabels = {
+                'nombre_empresa': 'Nombre de la Empresa', 'sector': 'Sector', 'descripcion_negocio': 'Descripción del Negocio',
+                'puesto_usuario': 'Rol o posición actual', 'antiguedad_empresa': 'Antigüedad de la empresa', 'numero_empleados': 'Número de empleados',
+                'mayor_reto_superado': 'Mayor reto superado', 'hito_mas_importante': 'Mayor aprendizaje o hito',
+                'nombre_contacto': 'Nombre de Contacto', 'email_contacto': 'Email de Contacto', 'telefono_contacto': 'Teléfono de Contacto',
+                'tipo_sociedad': 'Tipo de Sociedad',
+                'nivel_formalidad_corporativa': 'Nivel de formalidad',
+                'existencia_contratos': 'Existencia de contratos claros', 'propiedad_intelectual_registrada': 'Registro de patentes o marcas', 'gestion_compliance': 'Gestión de cumplimiento normativo',
+                'protocolos_gobierno': 'Protocolos de gobierno corporativo', 'plan_sucesion_definido': 'Plan de sucesión definido',
+                'nivel_cumplimiento_fiscal': 'Nivel de cumplimiento fiscal', 'asesoria_legal_permanente': 'Asesoría legal y fiscal permanente',
+                'giro_principal': 'Giro principal del negocio', 'posicionamiento_mercado': 'Posicionamiento frente a competencia', 'estrategias_marketing': 'Estrategias de marketing',
+                'tipo_empresa': 'Tipo de empresa', 'numero_socios': 'Número de socios', 'acuerdos_entre_socios': 'Acuerdos formales entre socios',
+                'separacion_patrimonio': 'Separación de patrimonio', 'seguro_responsabilidad': 'Seguro de responsabilidad civil', 'estructura_holding': 'Estructuras de holding',
+                'impacto_ausencia_persona_clave': 'Impacto por ausencia de persona clave', 'lista_personas_clave': 'Personas indispensable para la operación',
+                'costo_estimado_perdida_clave': 'Costo financiero estimado por ausencia', 'plan_contingencia_existente': 'Plan de sucesión o fondo de contingencia',
+                'tipo_prestaciones_empleados': 'Prestaciones a empleados', 'gestion_rotacion_personal': 'Gestión de rotación de talento', 'seguro_personas_clave': 'Seguro de personas clave',
+                'preocupaciones_continuidad': 'Preocupaciones sobre continuidad',
+                'situacion_utilidad_fiscal': 'Situación de la utilidad fiscal',
+                'gestion_flujo_efectivo': 'Desafíos en flujo de efectivo', 'conocimiento_coeficiente_utilidad': 'Conocimiento del coeficiente de utilidad', 'uso_principal_utilidades': 'Uso principal de las utilidades',
+                'metodo_pago_directivos': 'Método de compensación a directivos/socios', 'estrategias_fiscales_actuales': 'Estrategia actual para reducir carga de ISR o PTU',
+                'proyectos_futuros_empresa': 'Proyectos importantes para los próximos 3-5 años', 'metodo_fondeo_proyectos': 'Método de fondeo para proyectos', 'reservas_empresariales': 'Existencia de fondos o reservas empresariales'
+            };
+
+            function generateGeminiPrompt(data) {
+                let instructions = `Eres un consultor experto en negocios, estrategias de marketing, gobierno corporativo, fiscalidad, impuestos y diseño de estrategias de seguros utilizando herramientas como pólizas de hombre clave y seguros de gastos médicos colectivos. A partir de un diagnóstico que te compartiré, quiero que realices un análisis integral y una recomendación personalizada que incluya las siguientes secciones:\n\n1. Diagnóstico interpretado (resumen ejecutivo con lenguaje técnico accesible).\n2. Identificación de oportunidades estratégicas en las áreas de:\n   - Modelo de negocio\n   - Estrategia de marketing\n   - Gobierno corporativo\n   - Planificación fiscal e impositiva\n   - Estrategia de seguros (hombre clave / GMC)\n3. Plan de acción priorizado en etapas (corto, mediano y largo plazo).\n4. Recomendaciones específicas para implementar cada propuesta estratégica.\n5. Riesgos y mitigaciones asociados a cada estrategia.\n\nAntes de responder, piensa paso a paso cómo se interrelacionan las áreas y cómo pueden fortalecerse mutuamente. Usa un lenguaje profesional, con términos de negocios y enfoque consultivo. No hagas suposiciones sin sustento en el diagnóstico que te voy a proporcionar. Si necesitas más información, haz preguntas específicas antes de emitir recomendaciones.`;
+                
+                let conditionalInstructions = "\n\n--- REGLAS DE NEGOCIO ADICIONALES ---\n";
+                let hasConditions = false;
+
+                if (data.numero_empleados && parseInt(data.numero_empleados) < 10) {
+                    conditionalInstructions += "- El cliente tiene menos de 10 empleados, por lo tanto, NO menciones ni recomiendes un seguro de Gastos Médicos Mayores Colectivo (GMC).\n";
+                    hasConditions = true;
+                }
+                
+                const antiguedad = data.antiguedad_empresa || "";
+                const mesesMatch = antiguedad.match(/(\d+)\s*mes/i);
+                const anosMatch = antiguedad.match(/(\d+)\s*a.o/i);
+                let mesesTotales = Infinity;
+
+                if(mesesMatch) {
+                    mesesTotales = parseInt(mesesMatch[1]);
+                } else if (anosMatch) {
+                    mesesTotales = parseInt(anosMatch[1]) * 12;
+                }
+                
+                if (mesesTotales < 15) {
+                    conditionalInstructions += "- La empresa tiene menos de 15 meses de operación. NO recomiendes un seguro de Hombre Clave, ya que no es elegible.\n";
+                    hasConditions = true;
+                }
+
+                if(data.tipo_prestaciones_empleados && (data.tipo_prestaciones_empleados.toLowerCase().includes('colectiva') || data.tipo_prestaciones_empleados.toLowerCase().includes('sgmm'))) {
+                    conditionalInstructions += "- El cliente ya cuenta con una póliza de Gastos Médicos Mayores Colectiva. En lugar de proponer una nueva, sugiere la posibilidad de revisar la actual para encontrar áreas de oportunidad y optimización.\n";
+                    hasConditions = true;
+                }
+                
+                if(hasConditions) {
+                    instructions += conditionalInstructions;
+                }
+
+                instructions += `\n\n---DATOS_ESTRUCTURADOS---\nAl final de TODA tu respuesta, añade un bloque JSON que contenga únicamente los conceptos clave del plan de acción. El JSON debe tener el siguiente formato: \`\`\`json\n{"timelineData": {"corto_plazo": ["Concepto 1", "Concepto 2"], "mediano_plazo": ["Concepto 3"], "largo_plazo": ["Concepto 4"]}}\n\`\`\`\n\n--- DIAGNÓSTICO EMPRESARIAL RECOPILADO ---`;
+                
+                let diagnosisData = "\n";
+                for (const key in fieldLabels) {
+                    if (data[key]) { diagnosisData += `- **${fieldLabels[key]}:** ${data[key]}\n`; }
+                }
+                return `${instructions}${diagnosisData}`;
+            }
+
+            function generateSummaryHtml(data) {
+                let html = '';
+                for (const key in fieldLabels) {
+                    if (data[key]) { html += `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2"><dt class="font-medium text-gray-600">${fieldLabels[key]}:</dt><dd class="text-gray-800">${data[key]}</dd></div>`; }
+                }
+                return html;
+            }
+
+            function showStep(stepIndex) {
+                formSteps.forEach(step => step.classList.remove('form-step-active'));
+                formSteps[stepIndex].classList.add('form-step-active');
+                const progress = ((stepIndex + 1) / totalSteps) * 100;
+                progressBar.style.width = `${progress}%`;
+                stepCounter.textContent = `Paso ${stepIndex + 1} de ${totalSteps}`;
+                prevBtn.style.display = stepIndex === 0 ? 'none' : 'inline-block';
+                nextBtn.style.display = stepIndex === totalSteps - 1 ? 'none' : 'inline-block';
+                submitBtn.style.display = stepIndex === totalSteps - 1 ? 'inline-block' : 'none';
+            }
+            
+            function formatAIResponse(text) {
+                let html = text
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;");
+
+                // Convertir tablas de Markdown
+                const tableRegex = /(\|.*\|(?:\r\n|\n)?)+/g;
+                html = html.replace(tableRegex, (tableMatch) => {
+                    const rows = tableMatch.trim().split('\n').filter(r => r.includes('|'));
+                    if (rows.length < 2 || !rows[1].includes('---')) return tableMatch;
+                    
+                    let tableHtml = '<div class="overflow-x-auto my-4"><table class="min-w-full divide-y divide-gray-300 border rounded-lg">';
+                    const headerCells = rows[0].split('|').slice(1, -1);
+                    tableHtml += '<thead class="bg-gray-50"><tr>';
+                    headerCells.forEach(cell => {
+                        tableHtml += `<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${cell.trim()}</th>`;
+                    });
+                    tableHtml += '</tr></thead>';
+                    
+                    tableHtml += '<tbody class="bg-white divide-y divide-gray-200">';
+                    rows.slice(2).forEach(row => {
+                        const rowCells = row.split('|').slice(1, -1);
+                        tableHtml += '<tr>';
+                        rowCells.forEach(cell => {
+                            tableHtml += `<td class="px-4 py-4 text-sm text-gray-700">${cell.trim()}</td>`;
+                        });
+                        tableHtml += '</tr>';
+                    });
+                    tableHtml += '</tbody></table></div>';
+                    return tableHtml;
+                });
+
+                // Convertir encabezados
+                html = html.replace(/^### (.*$)/gim, '<h3 class="text-lg font-semibold mt-4 mb-2">$1</h3>');
+                html = html.replace(/^## (.*$)/gim, '<h2 class="text-xl font-bold mt-5 mb-3 border-b pb-2">$1</h2>');
+                
+                html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                
+                html = html.replace(/\n/g, '<br>');
+
+                html = html.replace(/<br>\s*-\s/g, '<li class="ml-5 list-disc">');
+                html = html.replace(/<br>\s*\d+\.\s/g, (match) => `<li class="ml-5 list-decimal" value="${match.match(/\d+/)[0]}">`);
+
+                return html;
+            }
+            
+            function generateTimeline(timelineData) {
+                timelineContainer.innerHTML = '';
+                if (!timelineData || typeof timelineData !== 'object') {
+                    timelineContainer.classList.add('hidden');
+                    return;
+                }
+
+                const phases = [
+                    { name: 'Corto Plazo', key: 'corto_plazo' },
+                    { name: 'Mediano Plazo', key: 'mediano_plazo' },
+                    { name: 'Largo Plazo', key: 'largo_plazo' }
+                ];
+                
+                let hasContent = false;
+                let timelineHtml = '<h3 class="text-xl font-bold mb-6">Línea de Tiempo del Plan de Acción</h3><div class="space-y-8">';
+
+                phases.forEach(phase => {
+                    const concepts = timelineData[phase.key];
+                    if (concepts && Array.isArray(concepts) && concepts.length > 0) {
+                        hasContent = true;
+                        timelineHtml += `
+                            <div>
+                                <h4 class="text-lg font-semibold text-blue-600 mb-4">${phase.name}</h4>
+                                <div class="relative pl-8 border-l-2 border-blue-300">`;
+                        
+                        concepts.forEach((concept) => {
+                            timelineHtml += `
+                                    <div class="mb-5 relative">
+                                        <div class="absolute w-4 h-4 bg-white border-2 border-blue-600 rounded-full" style="left: -2.3rem; top: 0.25rem;"></div>
+                                        <p class="font-medium text-gray-800">${concept}</p>
+                                    </div>`;
+                        });
+
+                        timelineHtml += `</div></div>`;
+                    }
+                });
+                
+                timelineHtml += '</div>';
+                
+                if (hasContent) {
+                    timelineContainer.innerHTML = timelineHtml;
+                    timelineContainer.classList.remove('hidden');
+                } else {
+                    timelineContainer.classList.add('hidden');
+                }
+            }
+
+            function manageModalView(view) {
+                loadingState.classList.add('hidden');
+                reportContent.classList.add('hidden');
+                clarificationState.classList.add('hidden');
+                errorState.classList.add('hidden');
+                supportFlowContainer.classList.add('hidden');
+                downloadPdfBtn.classList.add('hidden');
+                
+                if(view === 'loading') loadingState.classList.remove('hidden');
+                if(view === 'report') {
+                    reportContent.classList.remove('hidden');
+                    downloadPdfBtn.classList.remove('hidden');
+                    supportFlowContainer.classList.remove('hidden');
+                }
+                if(view === 'clarification') clarificationState.classList.remove('hidden');
+                if(view === 'error') errorState.classList.remove('hidden');
+            }
+
+            async function getAIResponse(prompt) {
+                const apiKey = "AIzaSyAjagQQv21CcuaFAuXS7QJ-_mzDuI-PkBk";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+
+                if (!response.ok) {
+                    throw new Error(`API call failed: ${response.status}`);
+                }
+                const result = await response.json();
+                return result.candidates?.[0]?.content?.parts?.[0]?.text || "No se pudo obtener una respuesta de la IA.";
+            }
+
+            function displayClarificationQuestions(questionsText) {
+                clarificationForm.innerHTML = '';
+                const questions = questionsText.split('\n').filter(line => /^\s*\d+\.\s/.test(line));
+                
+                questions.forEach((q, index) => {
+                    const questionId = `clarification_answer_${index}`;
+                    const questionLabel = q.replace(/^\s*\d+\.\s*/, '');
+                    
+                    const formGroup = document.createElement('div');
+                    formGroup.className = 'space-y-1';
+                    
+                    const label = document.createElement('label');
+                    label.htmlFor = questionId;
+                    label.className = 'block text-sm font-medium text-gray-700';
+                    label.textContent = questionLabel;
+                    
+                    const textarea = document.createElement('textarea');
+                    textarea.id = questionId;
+                    textarea.name = questionId;
+                    textarea.rows = 2;
+                    textarea.className = 'w-full px-3 py-2 border border-gray-300 rounded-md';
+                    textarea.dataset.originalQuestion = q;
+                    
+                    formGroup.appendChild(label);
+                    formGroup.appendChild(textarea);
+                    clarificationForm.appendChild(formGroup);
+                });
+
+                manageModalView('clarification');
+            }
+            
+            async function downloadReportAsPDF() {
+                const { jsPDF } = window.jspdf;
+                const reportElement = document.getElementById('reportContent');
+                const downloadButton = document.getElementById('downloadPdfBtn');
+                
+                downloadButton.innerText = 'Generando...';
+                downloadButton.disabled = true;
+
+                try {
+                    const doc = new jsPDF({
+                        orientation: 'p',
+                        unit: 'pt',
+                        format: 'a4'
+                    });
+                    
+                    await doc.html(reportElement, {
+                        callback: function (doc) {
+                            doc.save('reporte-diagnostico-empresarial.pdf');
+                        },
+                        margin: [20, 20, 20, 20],
+                        autoPaging: 'text',
+                        x: 0,
+                        y: 0,
+                        width: 555, // A4 width in points, adjusted for margins
+                        windowWidth: 800 // An arbitrary but reasonable width
+                    });
+                    
+                    downloadPrompt.classList.add('hidden');
+                    mondayFormContainer.classList.remove('hidden');
+
+                } catch(error) {
+                    console.error("Error al generar PDF:", error);
+                    alert("Ocurrió un error al generar el PDF. Por favor, intente de nuevo.");
+                } finally {
+                    downloadButton.innerText = 'Descargar PDF';
+                    downloadButton.disabled = false;
+                }
+            }
+
+
+            // --- Main Form Submission ---
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                if (!validateStep(currentStep)) {
+                    return;
+                }
+
+                reportModal.classList.remove('hidden');
+                manageModalView('loading');
+                downloadPrompt.classList.remove('hidden');
+                mondayFormContainer.classList.add('hidden');
+
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+                initialPrompt = generateGeminiPrompt(data);
+
+                // Llenar dinámicamente los datos de la portada
+                if(document.getElementById('portadaNombreContacto')) {
+                    document.getElementById('portadaNombreContacto').textContent = data.nombre_contacto || 'NOMBRE DEL CONTACTO';
+                }
+                if(document.getElementById('portadaNombreEmpresa')) {
+                    document.getElementById('portadaNombreEmpresa').textContent = data.nombre_empresa || 'NOMBRE DE EMPRESA';
+                }
+
+                try {
+                    const fullResponseText = await getAIResponse(initialPrompt);
+
+                    let analysisText = fullResponseText;
+                    let timelineData = null;
+                    const jsonBlockRegex = /```json\n([\s\S]*?)\n```/;
+                    const jsonMatch = fullResponseText.match(jsonBlockRegex);
+                    
+                    if (jsonMatch && jsonMatch[1]) {
+                        try {
+                            const parsedJson = JSON.parse(jsonMatch[1]);
+                            timelineData = parsedJson.timelineData;
+                            analysisText = fullResponseText.replace(jsonBlockRegex, '').trim();
+                        } catch (jsonError) {
+                            console.error("Failed to parse timeline JSON:", jsonError);
+                        }
+                    }
+
+                    if (analysisText.includes("necesito clarificar") || /^\s*\d+\.\s/.test(analysisText.trim())) {
+                        displayClarificationQuestions(analysisText);
+                    } else {
+                        diagnosisSummaryOutput.innerHTML = generateSummaryHtml(data);
+                        generateTimeline(timelineData);
+                        aiAnalysisOutput.innerHTML = formatAIResponse(analysisText);
+                        manageModalView('report');
+                    }
+                } catch (err) {
+                    console.error("Error generating report:", err);
+                    manageModalView('error');
+                }
+            });
+
+            // --- Clarification Re-submission ---
+            resubmitBtn.addEventListener('click', async () => {
+                manageModalView('loading');
+                
+                let followUpText = "\n\n--- RESPUESTAS A PREGUNTAS DE ACLARACIÓN ---\n";
+                const clarificationInputs = clarificationForm.querySelectorAll('textarea');
+                clarificationInputs.forEach(input => {
+                    followUpText += `\nPregunta: ${input.dataset.originalQuestion}\nRespuesta: ${input.value}\n`;
+                });
+
+                const finalPrompt = initialPrompt + followUpText;
+
+                try {
+                    const fullResponseText = await getAIResponse(finalPrompt);
+                    const initialData = Object.fromEntries(new FormData(form).entries());
+
+                    let analysisText = fullResponseText;
+                    let timelineData = null;
+                    const jsonBlockRegex = /```json\n([\s\S]*?)\n```/;
+                    const jsonMatch = fullResponseText.match(jsonBlockRegex);
+                    
+                    if (jsonMatch && jsonMatch[1]) {
+                        try {
+                            const parsedJson = JSON.parse(jsonMatch[1]);
+                            timelineData = parsedJson.timelineData;
+                            analysisText = fullResponseText.replace(jsonBlockRegex, '').trim();
+                        } catch (jsonError) {
+                            console.error("Failed to parse timeline JSON:", jsonError);
+                        }
+                    }
+
+                    diagnosisSummaryOutput.innerHTML = generateSummaryHtml(initialData);
+                    generateTimeline(timelineData);
+                    aiAnalysisOutput.innerHTML = formatAIResponse(analysisText);
+                    manageModalView('report');
+
+                } catch (err) {
+                    console.error("Error re-generating report:", err);
+                    manageModalView('error');
+                }
+            });
+            
+            function validateStep(stepIndex) {
+                let isValid = true;
+                const currentStepElement = formSteps[stepIndex];
+                const fields = currentStepElement.querySelectorAll('[required]');
+
+                validationMessage.classList.add('hidden');
+                fields.forEach(field => {
+                    field.classList.remove('border-red-500');
+                    if (field.offsetParent === null) return; 
+
+                    let isRadioGroup = field.type === 'radio';
+                    if (isRadioGroup) {
+                        const groupName = field.name;
+                        const group = currentStepElement.querySelectorAll(`input[name="${groupName}"]`);
+                        const isChecked = Array.from(group).some(radio => radio.checked);
+                        if (!isChecked) {
+                           isValid = false;
+                           const groupLabel = field.closest('div.mb-6') || field.closest('div');
+                           if(groupLabel) groupLabel.classList.add('border-red-500', 'p-2', 'rounded-lg');
+                        } else {
+                           const groupLabel = field.closest('.border-red-500');
+                           if(groupLabel) groupLabel.classList.remove('border-red-500', 'p-2', 'rounded-lg');
+                        }
+                    } else if (!field.value.trim()) {
+                        isValid = false;
+                        field.classList.add('border-red-500');
+                    }
+                });
+                
+                if (!isValid) {
+                    validationMessage.classList.remove('hidden');
+                }
+
+                return isValid;
+            }
+
+            // --- Navigation and Modal Controls ---
+            nextBtn.addEventListener('click', () => { 
+                if (validateStep(currentStep)) {
+                    if (currentStep < totalSteps - 1) { 
+                        currentStep++; 
+                        showStep(currentStep); 
+                    }
+                }
+            });
+            prevBtn.addEventListener('click', () => { if (currentStep > 0) { currentStep--; showStep(currentStep); } });
+            closeModalBtn.addEventListener('click', () => { reportModal.classList.add('hidden'); });
+            downloadPdfBtn.addEventListener('click', downloadReportAsPDF);
+            
+            const rangeInput = document.getElementById('nivel_formalidad_corporativa');
+            if (rangeInput) {
+                const rangeValue = document.getElementById('rangeValue');
+                rangeInput.addEventListener('input', () => { 
+                    if (rangeValue) {
+                        rangeValue.textContent = rangeInput.value;
+                    }
+                });
+            }
+
+            const tipoEmpresaSelect = document.getElementById('tipo_empresa');
+            if (tipoEmpresaSelect) {
+                const sociosFields = document.getElementById('sociosFields');
+                const sociosInputs = sociosFields.querySelectorAll('input, select');
+
+                tipoEmpresaSelect.addEventListener('change', () => {
+                    const show = ['socios_externos', 'familiar'].includes(tipoEmpresaSelect.value);
+                    sociosFields.classList.toggle('hidden', !show);
+                    sociosInputs.forEach(input => input.required = show);
+                });
+            }
+            
+            // Auto-resize textareas
+            document.querySelectorAll('textarea').forEach(textarea => {
+                textarea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = (this.scrollHeight) + 'px';
+                }, false);
+            });
+
+            showStep(currentStep);
+        });
+    </script>
+
+    <!-- ================== GENERACIÓN DE PDF DINÁMICO CON PDF-LIB.js (VERSIÓN PARA NAVEGADOR) ================== -->
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+    <script>
+    const MM_TO_PT = 2.83465;
+    const A4_HEIGHT_MM = 297;
+
+    function mmToPt(mm) { return mm * MM_TO_PT; }
+    function yFromTop(mm) { return mmToPt(A4_HEIGHT_MM - mm); }
+
+    async function fillPdf(data) {
+      const { PDFDocument, StandardFonts, rgb } = PDFLib;
+      const url = 'Diagnostico.pdf';
+      const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
+      const pdfDoc = await PDFDocument.load(existingPdfBytes);
+      console.log('Número de páginas:', pdfDoc.getPageCount());
+      const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+      // Página 1
+      let page = pdfDoc.getPages()[0];
+      page.drawText(data.NOMBRE_EMPRESA || 'PRUEBA', { x: mmToPt(6.08), y: yFromTop(260.94), size: 18, font, color: rgb(0, 0.22, 0.35) });
+      page.drawText(data.NOMBRE_CONTACTO || '', { x: mmToPt(114.32), y: yFromTop(260.94), size: 12, font, color: rgb(0, 0.22, 0.35) });
+
+      // Página 2
+      page = pdfDoc.getPages()[1];
+      page.drawText(data.ROL_ACTUAL || '', { x: mmToPt(113.03), y: yFromTop(58.86), size: 12, font });
+      page.drawText(data.SECTOR || '', { x: mmToPt(113.03), y: yFromTop(80.91), size: 12, font });
+      page.drawText(data.NUMERO_EMPLEADOS || '', { x: mmToPt(113.03), y: yFromTop(102.8), size: 12, font });
+      page.drawText(data.DESCRIPCION_NEGOCIO || '', { x: mmToPt(127.58), y: yFromTop(122.64), size: 12, font });
+      page.drawText(data.PERSONAS_INDISPENSABLES || '', { x: mmToPt(30.45), y: yFromTop(203.56), size: 12, font });
+      page.drawText(data.ANTIGUEDAD_NEGOCIO || '', { x: mmToPt(127.58), y: yFromTop(203.56), size: 12, font });
+      page.drawText(data.TIPO_SOCIEDAD || '', { x: mmToPt(30.45), y: yFromTop(244.02), size: 12, font });
+      page.drawText(data.MONTO_PROYECTOS || '', { x: mmToPt(127.58), y: yFromTop(244.02), size: 12, font });
+
+      // Página 3
+      page = pdfDoc.getPages()[2];
+      page.drawText(data.CORTO_PLAZO_1 || '', { x: mmToPt(46.78), y: yFromTop(76.63), size: 12, font });
+      page.drawText(data.CORTO_PLAZO_2 || '', { x: mmToPt(46.78), y: yFromTop(95.95), size: 12, font });
+      page.drawText(data.CORTO_PLAZO_3 || '', { x: mmToPt(46.78), y: yFromTop(115.02), size: 12, font });
+      page.drawText(data.MEDIANO_PLAZO_1 || '', { x: mmToPt(21), y: yFromTop(149.79), size: 12, font });
+      page.drawText(data.MEDIANO_PLAZO_2 || '', { x: mmToPt(21), y: yFromTop(169.11), size: 12, font });
+      page.drawText(data.MEDIANO_PLAZO_3 || '', { x: mmToPt(21), y: yFromTop(188.18), size: 12, font });
+      page.drawText(data.LARGO_PLAZO_1 || '', { x: mmToPt(41.29), y: yFromTop(235.72), size: 12, font });
+      page.drawText(data.LARGO_PLAZO_2 || '', { x: mmToPt(41.29), y: yFromTop(205.05), size: 12, font });
+      page.drawText(data.LARGO_PLAZO_3 || '', { x: mmToPt(41.29), y: yFromTop(274.12), size: 12, font });
+
+      // Página 4
+      page = pdfDoc.getPages()[3];
+      page.drawText(data.RESUMEN_EJECUTIVO || '', { x: mmToPt(16.17), y: yFromTop(79.21), size: 12, font });
+      page.drawText(data.MODELO_NEGOCIOS || '', { x: mmToPt(16.17), y: yFromTop(211.22), size: 12, font });
+
+      // Página 5
+      page = pdfDoc.getPages()[4];
+      page.drawText(data.ESTRATEIGAS_MARKETING || '', { x: mmToPt(16.17), y: yFromTop(44.18), size: 12, font });
+      page.drawText(data.GOBIERNO_CORPORATIVO || '', { x: mmToPt(16.17), y: yFromTop(135.03), size: 12, font });
+      page.drawText(data.PLANIFICACION_FISCAL || '', { x: mmToPt(16.17), y: yFromTop(29.91), size: 12, font });
+
+      // Página 6
+      page = pdfDoc.getPages()[5];
+      page.drawText(data.CORTO_PLAZO_DESGLOSE || '', { x: mmToPt(16.17), y: yFromTop(79.21), size: 12, font });
+      page.drawText(data.MEDIANO_PLAZO_DESGLOSE || '', { x: mmToPt(16.17), y: yFromTop(211.22), size: 12, font });
+
+      // Página 7
+      page = pdfDoc.getPages()[6];
+      page.drawText(data.LARGO_PLAZO_DESGLOSE || '', { x: mmToPt(16.1), y: yFromTop(44.18), size: 12, font });
+      page.drawText(data.RECOMENDACIONES_ESPECIFICAS || '', { x: mmToPt(16.17), y: yFromTop(135.03), size: 12, font });
+
+      // Página 8
+      page = pdfDoc.getPages()[7];
+      page.drawText(data.ESTRATEGIA_1 || '', { x: mmToPt(10.21), y: yFromTop(73.41), size: 12, font });
+      page.drawText(data.RIESGO_1 || '', { x: mmToPt(49.66), y: yFromTop(73.41), size: 12, font });
+      page.drawText(data.MITIGACION_1 || '', { x: mmToPt(89.16), y: yFromTop(73.41), size: 12, font });
+      page.drawText(data.ESTRATEGIA_2 || '', { x: mmToPt(10.321), y: yFromTop(98.24), size: 12, font });
+      page.drawText(data.RIESGO_2 || '', { x: mmToPt(49.66), y: yFromTop(98.24), size: 12, font });
+      page.drawText(data.MITIGACION_2 || '', { x: mmToPt(89.16), y: yFromTop(98.24), size: 12, font });
+      page.drawText(data.ESTRATEGIA_3 || '', { x: mmToPt(10.21), y: yFromTop(123.07), size: 12, font });
+      page.drawText(data.RIESGO_3 || '', { x: mmToPt(49.66), y: yFromTop(123.07), size: 12, font });
+      page.drawText(data.MITIGACION_3 || '', { x: mmToPt(89.16), y: yFromTop(123.07), size: 12, font });
+      page.drawText(data.ESTRATEGIA_4 || '', { x: mmToPt(10.21), y: yFromTop(144.28), size: 12, font });
+      page.drawText(data.RIESGO_4 || '', { x: mmToPt(49.66), y: yFromTop(144.28), size: 12, font });
+      page.drawText(data.MITIGACION_4 || '', { x: mmToPt(89.16), y: yFromTop(144.28), size: 12, font });
+      page.drawText(data.ESTRATEGIA_5 || '', { x: mmToPt(10.21), y: yFromTop(170.15), size: 12, font });
+      page.drawText(data.RIESGO_5 || '', { x: mmToPt(49.66), y: yFromTop(170.15), size: 12, font });
+      page.drawText(data.MITIGACION_5 || '', { x: mmToPt(89.16), y: yFromTop(170.15), size: 12, font });
+      page.drawText(data.ESTRATEGIA_6 || '', { x: mmToPt(10.21), y: yFromTop(199.01), size: 12, font });
+      page.drawText(data.RIESGO_6 || '', { x: mmToPt(49.66), y: yFromTop(199.01), size: 12, font });
+      page.drawText(data.MITIGACION_6 || '', { x: mmToPt(89.16), y: yFromTop(199.01), size: 12, font });
+      page.drawText(data.ESTRATEGIA_7 || '', { x: mmToPt(10.21), y: yFromTop(223.2), size: 12, font });
+      page.drawText(data.RIESGO_7 || '', { x: mmToPt(49.66), y: yFromTop(223.2), size: 12, font });
+      page.drawText(data.MITIGACION_7 || '', { x: mmToPt(89.16), y: yFromTop(223.2), size: 12, font });
+
+      // Descargar el PDF
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'diagnostico-empresarial.pdf';
+      link.click();
+    }
+
+    // Ejemplo de uso:
+    // fillPdf({
+    //   NOMBRE_EMPRESA: 'Envision Life',
+    //   NOMBRE_CONTACTO: 'Arturo Flores',
+    //   ...
+    // });
+    </script>
+    <!-- ================== FIN PDF-LIB.js ================== -->
+
+    <!-- ================== PROMPT SUGERIDO PARA LA IA (PARA GENERAR EL JSON DE CAMPOS DEL PDF) ================== -->
+    <!--
+    Eres un asistente experto en diagnóstico empresarial. Analiza la información proporcionada y responde únicamente con un bloque JSON que contenga los siguientes campos, usando exactamente estos nombres de variable y sin agregar ningún texto adicional fuera del bloque JSON:
+
+    {
+      "NOMBRE_EMPRESA": "",
+      "NOMBRE_CONTACTO": "",
+      "ROL_ACTUAL": "",
+      "SECTOR": "",
+      "NUMERO_EMPLEADOS": "",
+      "DESCRIPCION_NEGOCIO": "",
+      "PERSONAS_INDISPENSABLES": "",
+      "ANTIGUEDAD_NEGOCIO": "",
+      "TIPO_SOCIEDAD": "",
+      "MONTO_PROYECTOS": "",
+      "CORTO_PLAZO_1": "",
+      "CORTO_PLAZO_2": "",
+      "CORTO_PLAZO_3": "",
+      "MEDIANO_PLAZO_1": "",
+      "MEDIANO_PLAZO_2": "",
+      "MEDIANO_PLAZO_3": "",
+      "LARGO_PLAZO_1": "",
+      "LARGO_PLAZO_2": "",
+      "LARGO_PLAZO_3": "",
+      "RESUMEN_EJECUTIVO": "",
+      "MODELO_NEGOCIOS": "",
+      "ESTRATEIGAS_MARKETING": "",
+      "GOBIERNO_CORPORATIVO": "",
+      "PLANIFICACION_FISCAL": "",
+      "CORTO_PLAZO_DESGLOSE": "",
+      "MEDIANO_PLAZO_DESGLOSE": "",
+      "LARGO_PLAZO_DESGLOSE": "",
+      "RECOMENDACIONES_ESPECIFICAS": "",
+      "ESTRATEGIA_1": "",
+      "RIESGO_1": "",
+      "MITIGACION_1": "",
+      "ESTRATEGIA_2": "",
+      "RIESGO_2": "",
+      "MITIGACION_2": "",
+      "ESTRATEGIA_3": "",
+      "RIESGO_3": "",
+      "MITIGACION_3": "",
+      "ESTRATEGIA_4": "",
+      "RIESGO_4": "",
+      "MITIGACION_4": "",
+      "ESTRATEGIA_5": "",
+      "RIESGO_5": "",
+      "MITIGACION_5": "",
+      "ESTRATEGIA_6": "",
+      "RIESGO_6": "",
+      "MITIGACION_6": "",
+      "ESTRATEGIA_7": "",
+      "RIESGO_7": "",
+      "MITIGACION_7": ""
+    }
+    -->
+    <!-- ================== FIN PROMPT SUGERIDO PARA LA IA ================== -->
+</body>
+</html>
