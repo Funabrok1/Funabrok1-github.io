@@ -521,9 +521,15 @@
                 const progress = ((stepIndex + 1) / totalSteps) * 100;
                 progressBar.style.width = `${progress}%`;
                 stepCounter.textContent = `Paso ${stepIndex + 1} de ${totalSteps}`;
-                prevBtn.style.display = stepIndex === 0 ? 'none' : 'inline-block';
-                nextBtn.style.display = stepIndex === totalSteps - 1 ? 'none' : 'inline-block';
-                submitBtn.style.display = stepIndex === totalSteps - 1 ? 'inline-block' : 'none';
+
+                // Botón "Anterior" solo se oculta en el primer paso
+                prevBtn.classList.toggle('hidden', stepIndex === 0);
+
+                // Botón "Siguiente" solo se oculta en el último paso
+                nextBtn.classList.toggle('hidden', stepIndex === totalSteps - 1);
+
+                // Botón "Generar Diagnóstico" solo se muestra en el último paso
+                submitBtn.classList.toggle('hidden', stepIndex !== totalSteps - 1);
             }
             
             function formatAIResponse(text) {
