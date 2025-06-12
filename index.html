@@ -192,6 +192,12 @@
       padding-bottom: 4rem !important;
     }
     </style>
+    <style>
+    .no-break {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    </style>
 </head>
 <body class="antialiased text-gray-800">
 
@@ -463,7 +469,7 @@
                 
                 <!-- Error Message --><div id="errorState" class="text-center py-10 hidden"><p class="text-red-600">Lo sentimos, ha ocurrido un error al generar el reporte. Por favor, intente de nuevo.</p></div>
                 <!-- Imagen final corporativa -->
-                <div class="w-full mt-8 mb-4">
+                <div class="w-full mt-8 mb-4 no-break">
                     <img src="https://i.ibb.co/BKsp7PvR/Blindaje-empresarial-2.webp" alt="Imagen final" style="width: 100%; max-width: 100%; display: block; margin: 0 auto 18px auto; border-radius: 10px;" />
                 </div>
             </div>
@@ -806,7 +812,7 @@
                             doc.save('reporte-diagnostico-empresarial.pdf');
                         },
                         margin: [20, 20, 20, 20],
-                        autoPaging: 'text',
+                        autoPaging: 'slice', // Cambiado para mejorar saltos de página
                         x: 0,
                         y: 0,
                         width: 555, // A4 width in points, adjusted for margins
