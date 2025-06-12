@@ -1328,7 +1328,7 @@
             const datosFinales = { ...datosFormulario, ...respuestaIA };
 
             // Genera el PDF solo si la IA devolvió un JSON válido
-            generarPDF(datosFinales);
+            await fillPdf(datosFinales);
 
         } catch (error) {
             // El error ya se muestra en getAIResponse, pero puedes hacer algo extra aquí si quieres
