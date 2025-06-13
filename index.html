@@ -809,14 +809,6 @@
                 const data = Object.fromEntries(formData.entries());
                 initialPrompt = generateGeminiPrompt(data);
 
-                // Llenar dinámicamente los datos de la portada
-                if(document.getElementById('portadaNombreContacto')) {
-                    document.getElementById('portadaNombreContacto').textContent = data.nombre_contacto || 'NOMBRE DEL CONTACTO';
-                }
-                if(document.getElementById('portadaNombreEmpresa')) {
-                    document.getElementById('portadaNombreEmpresa').textContent = data.nombre_empresa || 'NOMBRE DE EMPRESA';
-                }
-
                 try {
                     const fullResponseText = await getAIResponse(initialPrompt);
 
@@ -825,24 +817,29 @@
                     const jsonBlockRegex = /```json\n([\s\S]*?)\n```/;
                     const jsonMatch = fullResponseText.match(jsonBlockRegex);
                     
+                    let datosIA = {};
                     if (jsonMatch && jsonMatch[1]) {
                         try {
-                            const parsedJson = JSON.parse(jsonMatch[1]);
-                            timelineData = parsedJson.timelineData;
+                            datosIA = JSON.parse(jsonMatch[1]);
+                            timelineData = datosIA.timelineData || null;
                             analysisText = fullResponseText.replace(jsonBlockRegex, '').trim();
                         } catch (jsonError) {
                             console.error("Failed to parse timeline JSON:", jsonError);
                         }
                     }
 
-                    if (analysisText.includes("necesito clarificar") || /^\s*\d+\.\s/.test(analysisText.trim())) {
-                        displayClarificationQuestions(analysisText);
-                    } else {
-                        diagnosisSummaryOutput.innerHTML = generateSummaryHtml(data);
-                        generateTimeline(timelineData);
-                        aiAnalysisOutput.innerHTML = formatAIResponse(analysisText);
-                        manageModalView('report');
-                    }
+                    // Combina los datos del formulario y los de la IA
+                    datosFinalesParaPDF = { ...data, ...datosIA };
+
+                    // Muestra el reporte en pantalla
+                    diagnosisSummaryOutput.innerHTML = generateSummaryHtml(data);
+                    generateTimeline(timelineData);
+                    aiAnalysisOutput.innerHTML = formatAIResponse(analysisText);
+                    manageModalView('report');
+
+                    // Genera y descarga el PDF automáticamente con los datos correctos
+                    await fillPdf(datosFinalesParaPDF);
+
                 } catch (err) {
                     console.error("Error generating report:", err);
                     manageModalView('error');
@@ -999,12 +996,18 @@
         pdfDoc.addPage([mmToPt(210), mmToPt(297)]);
       }
 
-      // === LOGO EN LA PORTADA (solo logo, sin fondo extra) ===
-      const logoUrl = 'https://i.ibb.co/x88DQzSt/Envision-life.jpg'; // Logo con fondo blanco
+      // === LOGO EN LA PORTADA (centrado y tamaño visual similar al HTML) ===
+      const logoUrl = 'https://i.ibb.co/3y2zF9hq/imagen.jpg'; // Logo con fondo blanco
       const logoImageBytes = await fetch(logoUrl).then(res => res.arrayBuffer());
       const logoImage = await pdfDoc.embedJpg(logoImageBytes);
       let page = pdfDoc.getPages()[0];
-      page.drawImage(logoImage, { x: mmToPt(65), y: yFromTop(85), width: mmToPt(80), height: mmToPt(40) });
+      // Tamaño máximo: ancho 180px (≈63.5mm), altura proporcional
+      const maxLogoWidth = mmToPt(63.5); // 180px ≈ 63.5mm
+      const logoDims = logoImage.scaleToFit(maxLogoWidth, mmToPt(40)); // Altura máxima 40mm aprox
+      const pageWidth = mmToPt(210);
+      const logoX = (pageWidth - logoDims.width) / 2;
+      const logoY = yFromTop(30); // 30mm desde arriba
+      page.drawImage(logoImage, { x: logoX, y: logoY, width: logoDims.width, height: logoDims.height });
 
       function drawWrappedText(page, text, x, y, maxWidth, maxLines, font, fontSize, color) {
         if (!text) return;
@@ -1020,6 +1023,8 @@
       }
 
       // === HOJA 1: Ficha técnica (dos columnas) ===
+      // Empieza la ficha técnica debajo del logo, dejando espacio
+      const fichaStartY = logoY - logoDims.height - mmToPt(10); // 10mm de espacio debajo del logo
       page = pdfDoc.getPages()[0];
       drawFicha(page, [
         ['Nombre de la Empresa :', data.NOMBRE_EMPRESA || ''],
@@ -1034,7 +1039,7 @@
         ['Email de Contacto :', data.EMAIL_CONTACTO || ''],
         ['Teléfono de Contacto :', data.TELEFONO_CONTACTO || ''],
         ['Estrategias de marketing :', data.ESTRATEGIAS_MARKETING || '']
-      ], mmToPt(40), mmToPt(90), yFromTop(40), 22, font, 12, rgb(0,0,0));
+      ], mmToPt(40), mmToPt(90), fichaStartY, 22, font, 12, rgb(0,0,0));
 
       // === HOJA 2: Ficha técnica (dos columnas) ===
       page = pdfDoc.getPages()[1];
@@ -1272,12 +1277,16 @@
     const downloadPdfBtn = document.getElementById('downloadPdfBtn');
     if (downloadPdfBtn) {
       downloadPdfBtn.addEventListener('click', () => {
-        // Obtener los datos actuales del formulario
-        const form = document.getElementById('diagnosisForm');
-        const formData = new FormData(form);
-        const datosFormulario = {};
-        formData.forEach((value, key) => datosFormulario[key] = value);
-        fillPdf(datosFormulario);
+        if (window.datosFinalesParaPDF) {
+          fillPdf(window.datosFinalesParaPDF);
+        } else {
+          // Si por alguna razón no hay datos, usa los del formulario como fallback
+          const form = document.getElementById('diagnosisForm');
+          const formData = new FormData(form);
+          const datosFormulario = {};
+          formData.forEach((value, key) => datosFormulario[key] = value);
+          fillPdf(datosFormulario);
+        }
       });
     }
     </script>
