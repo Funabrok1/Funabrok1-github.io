@@ -94,17 +94,17 @@
             color: #021524 !important;
         }
         #reportModal .border-blue-500, #reportModal .border-blue-600, #reportModal .border-blue-300, #reportModal .bg-blue-600 {
-            border-color: #006599 !important;
-            background-color: #006599 !important;
+            border-color: #00395a !important;
+            background-color: #00395a  !important;
         }
         #reportModal .text-blue-600 {
-            color: #006599 !important;
+            color: #00395a  !important;
         }
         #reportModal .divide-blue-300 {
-            border-color: #006599 !important;
+            border-color: #00395a  !important;
         }
         #reportModal .border-t {
-            border-top: 2px solid #006599 !important;
+            border-top: 2px solid #00395a  !important;
         }
         #reportModal .rounded-lg, #reportModal .rounded-2xl {
             border-radius: 18px !important;
@@ -114,7 +114,7 @@
             color: #fff !important;
         }
         #reportModal .overflow-x-auto table td {
-            border-top: 1px solid #006599 !important;
+            border-top: 1px solid #00395a !important;
         }
         /* Forzar alineación a la izquierda en todo el contenido del reporte */
         #reportContent, #reportContent * {
@@ -184,7 +184,7 @@
           color: #fff !important;
         }
         .bloque-reporte table td {
-          border-top: 1px solid #006599 !important;
+          border-top: 1px solid #00395a  !important;
         }
     </style>
     <style>
@@ -1075,9 +1075,9 @@
       // Aquí deberías llamar a tu función de matriz de riesgos, por ejemplo:
       // drawRiskMatrix(page, data.MATRIZ_RIESGOS_MITIGACIONES, ...)
       // Pie de página
-      const pieUrl = 'https://i.ibb.co/BKsp7PvR/Blindaje-empresarial-2.webp';
+      const pieUrl = 'https://i.ibb.co/Mw4JL0M/Blindaje-empresarial-2.png';
       const pieImageBytes = await fetch(pieUrl).then(res => res.arrayBuffer());
-      const pieImage = await pdfDoc.embedJpg(pieImageBytes);
+      const pieImage = await pdfDoc.embedPng(pieImageBytes); // Cambia a embedPng
       page.drawImage(pieImage, { x: mmToPt(10), y: mmToPt(10), width: mmToPt(190), height: mmToPt(25) });
 
       // Descargar el PDF
