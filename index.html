@@ -739,36 +739,20 @@
             }
 
             async function getAIResponse(prompt) {
-                const apiKey = OPENAI_API_KEY;
-                const apiUrl = "https://api.openai.com/v1/chat/completions";
-                const payload = {
-                    model: "gpt-4-1106-preview",
-                    messages: [
-                        { role: "system", content: `Eres un consultor experto en negocios, estrategias de marketing, gobierno corporativo, fiscalidad, impuestos y diseño de estrategias de seguros utilizando herramientas como pólizas de hombre clave y seguros de gastos médicos colectivos. A partir de un diagnóstico que te compartiré, quiero que realices un análisis integral y una recomendación personalizada que incluya las siguientes secciones:\n\n1. Diagnóstico interpretado (resumen ejecutivo con lenguaje técnico accesible).\n2. Identificación de oportunidades estratégicas en las áreas de:\n   - Modelo de negocio\n   - Estrategia de marketing\n   - Gobierno corporativo\n   - Planificación fiscal e impositiva\n   - Estrategia de seguros (hombre clave / GMC)\n3. Plan de acción priorizado en etapas (corto, mediano y largo plazo).\n4. Recomendaciones específicas para implementar cada propuesta estratégica.\n5. Riesgos y mitigaciones asociados a cada estrategia.\n\nAntes de responder, piensa paso a paso cómo se interrelacionan las áreas y cómo pueden fortalecerse mutuamente. Usa un lenguaje profesional, con términos de negocios y enfoque consultivo. No hagas suposiciones sin sustento en el diagnóstico que te voy a proporcionar. Si necesitas más información, haz preguntas específicas antes de emitir recomendaciones.` },
-                        { role: "user", content: prompt }
-                    ],
-                    temperature: 0.7
-                };
-
                 try {
-                    const response = await fetch(apiUrl, {
+                    const response = await fetch('/.netlify/functions/openai', {
                         method: 'POST',
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${apiKey}`
-                        },
-                        body: JSON.stringify(payload)
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ prompt })
                     });
-
                     if (!response.ok) {
                         const errorText = await response.text();
-                        throw new Error(`Error de la API OpenAI (${response.status}): ${errorText}`);
+                        throw new Error(`Error del backend (${response.status}): ${errorText}`);
                     }
-
                     const data = await response.json();
-                    return data.choices[0].message.content;
+                    return data.result; // o el campo que devuelvas en tu función
                 } catch (error) {
-                    alert("Ocurrió un error al obtener la respuesta de ChatGPT: " + error.message);
+                    alert("Ocurrió un error al obtener la respuesta de la IA: " + error.message);
                     throw error;
                 }
             }
