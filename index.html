@@ -1043,7 +1043,7 @@
       const logoImageBytes = await fetch(logoUrl).then(res => res.arrayBuffer());
       const logoImage = await pdfDoc.embedPng(logoImageBytes);
       let page = pdfDoc.getPages()[0];
-      page.drawRectangle({ x: mmToPt(60), y: yFromTop(80), width: mmToPt(90), height: mmToPt(50), color: rgb(1, 1, 1) });
+      page.drawRectangle({ x: mmToPt(60), y: yFromTop(80), width: mmToPt(90), height: mmToPt(50), color: rgb(255, 255, 255) });
       page.drawImage(logoImage, { x: mmToPt(65), y: yFromTop(85), width: mmToPt(80), height: mmToPt(40) });
 
       function drawWrappedText(page, text, x, y, maxWidth, maxLines, font, fontSize, color) {
@@ -1059,66 +1059,62 @@
         });
       }
 
-      // === HOJA 1: Nombre, contacto, info general hasta Estrategias de marketing ===
+      // === HOJA 1: Ficha técnica (dos columnas) ===
       page = pdfDoc.getPages()[0];
-      drawWrappedText(page, data.NOMBRE_EMPRESA || 'PRUEBA', mmToPt(6.08), yFromTop(260.94), mmToPt(100), 2, font, 18, rgb(0, 0.22, 0.35));
-      drawWrappedText(page, data.NOMBRE_CONTACTO || '', mmToPt(114.32), yFromTop(260.94), mmToPt(80), 2, font, 12, rgb(0, 0.22, 0.35));
-      drawWrappedText(page, data.SECTOR || '', mmToPt(113.03), yFromTop(80.91), mmToPt(80), 2, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.ANTIGUEDAD_NEGOCIO || '', mmToPt(127.58), yFromTop(203.56), mmToPt(40), 2, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.NUMERO_EMPLEADOS || '', mmToPt(113.03), yFromTop(102.8), mmToPt(40), 1, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.DESCRIPCION_NEGOCIO || '', mmToPt(127.58), yFromTop(122.64), mmToPt(80), 5, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.ROL_ACTUAL || '', mmToPt(113.03), yFromTop(58.86), mmToPt(80), 3, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.MAYOR_RETO_SUPERADO || '', mmToPt(30.45), yFromTop(150), mmToPt(120), 3, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.HITO_MAS_IMPORTANTE || '', mmToPt(30.45), yFromTop(130), mmToPt(120), 3, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.NOMBRE_CONTACTO || '', mmToPt(30.45), yFromTop(110), mmToPt(80), 2, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.EMAIL_CONTACTO || '', mmToPt(30.45), yFromTop(100), mmToPt(80), 2, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.TELEFONO_CONTACTO || '', mmToPt(30.45), yFromTop(90), mmToPt(80), 2, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.ESTRATEGIAS_MARKETING || '', mmToPt(16.17), yFromTop(44.18), mmToPt(170), 8, font, 12, rgb(0,0,0));
+      drawFicha(page, [
+        ['Nombre de la Empresa :', data.NOMBRE_EMPRESA || ''],
+        ['Sector :', data.SECTOR || ''],
+        ['Descripción del Negocio :', data.DESCRIPCION_NEGOCIO || ''],
+        ['Rol o posición actual :', data.ROL_ACTUAL || ''],
+        ['Antigüedad de la empresa :', data.ANTIGUEDAD_NEGOCIO || ''],
+        ['Número de empleados :', data.NUMERO_EMPLEADOS || ''],
+        ['Mayor reto superado :', data.MAYOR_RETO_SUPERADO || ''],
+        ['Mayor aprendizaje o hito :', data.HITO_MAS_IMPORTANTE || ''],
+        ['Nombre de Contacto :', data.NOMBRE_CONTACTO || ''],
+        ['Email de Contacto :', data.EMAIL_CONTACTO || ''],
+        ['Teléfono de Contacto :', data.TELEFONO_CONTACTO || ''],
+        ['Estrategias de marketing :', data.ESTRATEGIAS_MARKETING || '']
+      ], mmToPt(40), mmToPt(90), yFromTop(40), 22, font, 12, rgb(0,0,0));
 
-      // === HOJA 2: Desde Tipo de empresa al final de estructura/socios/protección ===
+      // === HOJA 2: Ficha técnica (dos columnas) ===
       page = pdfDoc.getPages()[1];
-      drawWrappedText(page, data.TIPO_EMPRESA || '', mmToPt(10), yFromTop(260), mmToPt(80), 2, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.NUMERO_SOCIOS || '', mmToPt(10), yFromTop(250), mmToPt(80), 2, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.ACUERDOS_ENTRE_SOCIOS || '', mmToPt(10), yFromTop(240), mmToPt(80), 2, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.SEPARACION_PATRIMONIO || '', mmToPt(10), yFromTop(230), mmToPt(80), 2, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.SEGURO_RESPONSABILIDAD_CIVIL || '', mmToPt(10), yFromTop(220), mmToPt(80), 2, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.ESTRUCTURAS_HOLDING || '', mmToPt(10), yFromTop(210), mmToPt(80), 2, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.IMPACTO_AUSENCIA_PERSONA_CLAVE || '', mmToPt(10), yFromTop(200), mmToPt(120), 3, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.PERSONAS_INDISPENSABLES || '', mmToPt(10), yFromTop(190), mmToPt(80), 2, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.PLAN_SUCESION_CONTINGENCIA || '', mmToPt(10), yFromTop(180), mmToPt(80), 2, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.PRESTACIONES_EMPLEADOS || '', mmToPt(10), yFromTop(170), mmToPt(80), 2, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.GESTION_ROTACION_TALENTO || '', mmToPt(10), yFromTop(160), mmToPt(80), 2, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.SEGURO_PERSONAS_CLAVE || '', mmToPt(10), yFromTop(150), mmToPt(80), 2, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.PREOCUPACIONES_CONTINUIDAD || '', mmToPt(10), yFromTop(140), mmToPt(120), 3, font, 12, rgb(0,0,0));
+      drawFicha(page, [
+        ['Tipo de empresa :', data.TIPO_EMPRESA || ''],
+        ['Número de socios :', data.NUMERO_SOCIOS || ''],
+        ['Acuerdos formales entre socios :', data.ACUERDOS_ENTRE_SOCIOS || ''],
+        ['Separación de patrimonio :', data.SEPARACION_PATRIMONIO || ''],
+        ['Seguro de responsabilidad civil :', data.SEGURO_RESPONSABILIDAD_CIVIL || ''],
+        ['Estructuras de holding :', data.ESTRUCTURAS_HOLDING || ''],
+        ['Impacto por ausencia de persona clave :', data.IMPACTO_AUSENCIA_PERSONA_CLAVE || ''],
+        ['Personas indispensable para la operación :', data.PERSONAS_INDISPENSABLES || ''],
+        ['Plan de sucesión o fondo de contingencia :', data.PLAN_SUCESION_CONTINGENCIA || ''],
+        ['Prestaciones a empleados :', data.PRESTACIONES_EMPLEADOS || ''],
+        ['Gestión de rotación de talento :', data.GESTION_ROTACION_TALENTO || ''],
+        ['Seguro de personas clave :', data.SEGURO_PERSONAS_CLAVE || ''],
+        ['Preocupaciones sobre continuidad :', data.PREOCUPACIONES_CONTINUIDAD || ''],
+        ['Situación de la utilidad fiscal :', data.SITUACION_UTILIDAD_FISCAL || '']
+      ], mmToPt(40), mmToPt(90), yFromTop(40), 22, font, 12, rgb(0,0,0));
 
-      // === HOJA 3: Línea de Tiempo del Plan de Acción ===
+      // === HOJA 3: Línea de tiempo visual ===
       page = pdfDoc.getPages()[2];
-      drawWrappedText(page, data.LINEA_TIEMPO || '', mmToPt(16.17), yFromTop(79.21), mmToPt(170), 20, font, 12, rgb(0,0,0));
+      // Aquí deberías llamar a tu función de línea de tiempo visual, por ejemplo:
+      // drawTimeline(page, data.LINEA_TIEMPO, ...)
 
-      // === HOJA 4: Resumen Ejecutivo y Modelo de Negocios ===
+      // === HOJAS 4-7: Texto corrido con títulos ===
       page = pdfDoc.getPages()[3];
-      drawWrappedText(page, data.RESUMEN_EJECUTIVO || '', mmToPt(16.17), yFromTop(79.21), mmToPt(170), 8, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.MODELO_NEGOCIOS || '', mmToPt(16.17), yFromTop(211.22), mmToPt(170), 8, font, 12, rgb(0,0,0));
-
-      // === HOJA 5: Estrategia de marketing hasta estrategia de seguros ===
+      drawParagraph(page, 'Diagnóstico Interpretado (Resumen Ejecutivo)', data.RESUMEN_EJECUTIVO || '', mmToPt(40), yFromTop(40), mmToPt(130), font, 12, rgb(0,0,0));
       page = pdfDoc.getPages()[4];
-      drawWrappedText(page, data.ESTRATEGIAS_MARKETING || '', mmToPt(16.17), yFromTop(44.18), mmToPt(170), 8, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.GOBIERNO_CORPORATIVO || '', mmToPt(16.17), yFromTop(135.03), mmToPt(170), 8, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.PLANIFICACION_FISCAL || '', mmToPt(16.17), yFromTop(29.91), mmToPt(170), 8, font, 12, rgb(0,0,0));
-      drawWrappedText(page, data.ESTRATEGIA_SEGUROS || '', mmToPt(16.17), yFromTop(20), mmToPt(170), 8, font, 12, rgb(0,0,0));
-
-      // === HOJA 6: Plan de Acción Priorizado en Etapas ===
+      drawParagraph(page, 'Modelo de Negocios', data.MODELO_NEGOCIOS || '', mmToPt(40), yFromTop(40), mmToPt(130), font, 12, rgb(0,0,0));
       page = pdfDoc.getPages()[5];
-      drawWrappedText(page, data.PLAN_ACCION_PRIORIZADO || '', mmToPt(16.17), yFromTop(79.21), mmToPt(170), 20, font, 12, rgb(0,0,0));
-
-      // === HOJA 7: Recomendaciones específicas ===
+      drawParagraph(page, 'Plan de Acción Priorizado en Etapas', data.PLAN_ACCION_PRIORIZADO || '', mmToPt(40), yFromTop(40), mmToPt(130), font, 12, rgb(0,0,0));
       page = pdfDoc.getPages()[6];
-      drawWrappedText(page, data.RECOMENDACIONES_ESPECIFICAS || '', mmToPt(16.17), yFromTop(135.03), mmToPt(170), 20, font, 12, rgb(0,0,0));
+      drawParagraph(page, 'Recomendaciones Específicas', data.RECOMENDACIONES_ESPECIFICAS || '', mmToPt(40), yFromTop(40), mmToPt(130), font, 12, rgb(0,0,0));
 
-      // === HOJA 8: Matriz de riesgos y mitigaciones + pie de página ===
+      // === HOJA 8: Matriz de riesgos y pie de página ===
       page = pdfDoc.getPages()[7];
-      drawWrappedText(page, data.MATRIZ_RIESGOS_MITIGACIONES || '', mmToPt(10.21), yFromTop(73.41), mmToPt(180), 20, font, 12, rgb(0,0,0));
-      // Pie de página con imagen corporativa
+      // Aquí deberías llamar a tu función de matriz de riesgos, por ejemplo:
+      // drawRiskMatrix(page, data.MATRIZ_RIESGOS_MITIGACIONES, ...)
+      // Pie de página
       const pieUrl = 'https://i.ibb.co/BKsp7PvR/Blindaje-empresarial-2.webp';
       const pieImageBytes = await fetch(pieUrl).then(res => res.arrayBuffer());
       const pieImage = await pdfDoc.embedPng(pieImageBytes);
