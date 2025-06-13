@@ -487,6 +487,15 @@
       <span>Cargando análisis de IA, por favor espera...</span>
     </div>
 
+    <!-- Incluye primero config.js -->
+    <script src="config.js"></script>
+    <!-- Luego tu script principal, si es externo -->
+    <!-- <script src="main.js"></script> -->
+    <!-- O tu bloque <script> con la lógica -->
+    <script>
+      // Aquí ya puedes usar OPENAI_API_KEY
+    </script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // --- DOM Elements ---
@@ -730,6 +739,7 @@
             }
 
             async function getAIResponse(prompt) {
+                const apiKey = OPENAI_API_KEY;
                 const apiUrl = "https://api.openai.com/v1/chat/completions";
                 const payload = {
                     model: "gpt-4-1106-preview",
@@ -1118,5 +1128,7 @@
       downloadPdfBtn.addEventListener('click', generarPDFDesdeBurbuja);
     }
     </script>
+
+    <script src="config.js"></script>
 </body>
 </html>
