@@ -573,46 +573,27 @@
             }
 
             function generateGeminiPrompt(data) {
-                let instructions = `Eres un consultor experto en negocios, estrategias de marketing, gobierno corporativo, fiscalidad, impuestos y diseño de estrategias de seguros utilizando herramientas como pólizas de hombre clave y seguros de gastos médicos colectivos. A partir de un diagnóstico que te compartiré, quiero que realices un análisis integral y una recomendación personalizada que incluya las siguientes secciones:\n\n1. Diagnóstico interpretado (resumen ejecutivo con lenguaje técnico accesible).\n2. Identificación de oportunidades estratégicas en las áreas de:\n   - Modelo de negocio\n   - Estrategia de marketing\n   - Gobierno corporativo\n   - Planificación fiscal e impositiva\n   - Estrategia de seguros (hombre clave / GMC)\n3. Plan de acción priorizado en etapas (corto, mediano y largo plazo).\n4. Recomendaciones específicas para implementar cada propuesta estratégica.\n5. Riesgos y mitigaciones asociados a cada estrategia.\n\nAntes de responder, piensa paso a paso cómo se interrelacionan las áreas y cómo pueden fortalecerse mutuamente. Usa un lenguaje profesional, con términos de negocios y enfoque consultivo. No hagas suposiciones sin sustento en el diagnóstico que te voy a proporcionar. Si necesitas más información, haz preguntas específicas antes de emitir recomendaciones.`;
-                
-                let conditionalInstructions = "\n\n--- REGLAS DE NEGOCIO ADICIONALES ---\n";
-                let hasConditions = false;
+                let instructions = `
+Eres un consultor experto en negocios, marketing, gobierno corporativo, fiscalidad e impuestos, y estrategias de seguros. 
+Analiza el siguiente diagnóstico empresarial y responde SOLO con:
 
-                if (data.numero_empleados && parseInt(data.numero_empleados) < 10) {
-                    conditionalInstructions += "- El cliente tiene menos de 10 empleados, por lo tanto, NO menciones ni recomiendes un seguro de Gastos Médicos Mayores Colectivo (GMC).\n";
-                    hasConditions = true;
-                }
-                
-                const antiguedad = data.antiguedad_empresa || "";
-                const mesesMatch = antiguedad.match(/(\d+)\s*mes/i);
-                const anosMatch = antiguedad.match(/(\d+)\s*a.o/i);
-                let mesesTotales = Infinity;
+1. Diagnóstico interpretado (resumen ejecutivo, lenguaje técnico accesible).
+2. Identificación de oportunidades estratégicas en:
+   - Modelo de negocio
+   - Estrategia de marketing
+   - Gobierno corporativo
+   - Planificación fiscal e impositiva
+   - Estrategia de seguros (hombre clave / GMC)
+3. Plan de acción priorizado en etapas (corto, mediano y largo plazo).
+4. Recomendaciones específicas para implementar cada propuesta estratégica.
 
-                if(mesesMatch) {
-                    mesesTotales = parseInt(mesesMatch[1]);
-                } else if (anosMatch) {
-                    mesesTotales = parseInt(anosMatch[1]) * 12;
-                }
-                
-                if (mesesTotales < 15) {
-                    conditionalInstructions += "- La empresa tiene menos de 15 meses de operación. NO recomiendes un seguro de Hombre Clave, ya que no es elegible.\n";
-                    hasConditions = true;
-                }
+Sé concreto, profesional y consultivo. No repitas información innecesaria. Si algún área no aplica, indícalo brevemente. Usa listas y subtítulos claros.
 
-                if(data.tipo_prestaciones_empleados && (data.tipo_prestaciones_empleados.toLowerCase().includes('colectiva') || data.tipo_prestaciones_empleados.toLowerCase().includes('sgmm'))) {
-                    conditionalInstructions += "- El cliente ya cuenta con una póliza de Gastos Médicos Mayores Colectiva. En lugar de proponer una nueva, sugiere la posibilidad de revisar la actual para encontrar áreas de oportunidad y optimización.\n";
-                    hasConditions = true;
-                }
-                
-                if(hasConditions) {
-                    instructions += conditionalInstructions;
-                }
-
-                instructions += `\n\n---DATOS_ESTRUCTURADOS---\nAl final de TODA tu respuesta, añade un bloque JSON que contenga únicamente los conceptos clave del plan de acción. El JSON debe tener el siguiente formato: \`\`\`json\n{"timelineData": {"corto_plazo": ["Concepto 1", "Concepto 2"], "mediano_plazo": ["Concepto 3"], "largo_plazo": ["Concepto 4"]}}\n\`\`\`\n\n--- DIAGNÓSTICO EMPRESARIAL RECOPILADO ---`;
-                
+Diagnóstico:
+`;
                 let diagnosisData = "\n";
                 for (const key in fieldLabels) {
-                    if (data[key]) { diagnosisData += `- **${fieldLabels[key]}:** ${data[key]}\n`; }
+                    if (data[key]) { diagnosisData += `- ${fieldLabels[key]}: ${data[key]}\n`; }
                 }
                 return `${instructions}${diagnosisData}`;
             }
