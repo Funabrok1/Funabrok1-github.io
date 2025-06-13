@@ -15,8 +15,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- PDF Generation Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script> -->
 
     <!-- Custom Styles -->
     <style>
@@ -1033,10 +1033,12 @@
 
     async function fillPdf(data) {
       const { PDFDocument, StandardFonts, rgb } = PDFLib;
-      const url = 'https://tubular-sorbet-3c24b9.netlify.app/Diagnostico.pdf';
-      const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
-      const pdfDoc = await PDFDocument.load(existingPdfBytes);
+      const pdfDoc = await PDFDocument.create();
       const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+      // Crear 8 páginas tamaño A4
+      for (let i = 0; i < 8; i++) {
+        pdfDoc.addPage([mmToPt(210), mmToPt(297)]);
+      }
 
       // === LOGO EN LA PORTADA (solo logo, sin fondo extra) ===
       const logoUrl = 'https://i.ibb.co/x88DQzSt/Envision-life.jpg'; // Logo con fondo blanco
@@ -1196,148 +1198,7 @@
     <!-- ================== FIN PROMPT SUGERIDO PARA LA IA ================== -->
 
     <script>
-    // Función para generar el PDF
-    async function generarPDF(datos) {
-        const existingPdfBytes = await fetch('Diagnostico.pdf').then(res => res.arrayBuffer());
-        const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
-        const font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
-
-        // Conversión de mm a puntos
-        const mmToPt = mm => mm * 2.83465;
-
-        // Array de campos, incluyendo los de la IA
-        const campos = [
-            // Página 1
-            { nombre: "nombre_empresa", x: 6.08, y: 260.94, pagina: 0 },
-            { nombre: "nombre_contacto", x: 114.32, y: 260.94, pagina: 0 },
-            // Página 2
-            { nombre: "puesto_usuario", x: 113.03, y: 58.86, pagina: 1 },
-            { nombre: "sector", x: 113.03, y: 80.91, pagina: 1 },
-            { nombre: "numero_empleados", x: 113.03, y: 102.8, pagina: 1 },
-            { nombre: "descripcion_negocio", x: 127.58, y: 122.64, pagina: 1 },
-            { nombre: "lista_personas_clave", x: 30.45, y: 203.56, pagina: 1 },
-            { nombre: "antiguedad_empresa", x: 127.58, y: 203.56, pagina: 1 },
-            { nombre: "tipo_sociedad", x: 30.45, y: 244.02, pagina: 1 },
-            { nombre: "proyectos_futuros_empresa", x: 127.58, y: 244.02, pagina: 1 },
-            // Página 3 (IA)
-            { nombre: "corto_plazo_1", x: 46.78, y: 76.63, pagina: 2 },
-            { nombre: "corto_plazo_2", x: 46.78, y: 95.95, pagina: 2 },
-            { nombre: "corto_plazo_3", x: 46.78, y: 115.02, pagina: 2 },
-            { nombre: "mediano_plazo_1", x: 21, y: 149.79, pagina: 2 },
-            { nombre: "mediano_plazo_2", x: 21, y: 169.11, pagina: 2 },
-            { nombre: "mediano_plazo_3", x: 21, y: 188.18, pagina: 2 },
-            { nombre: "largo_plazo_1", x: 41.29, y: 235.72, pagina: 2 },
-            { nombre: "largo_plazo_2", x: 41.29, y: 205.05, pagina: 2 },
-            { nombre: "largo_plazo_3", x: 41.29, y: 274.12, pagina: 2 },
-            // Página 4 (IA)
-            { nombre: "resumen_ejecutivo", x: 16.17, y: 79.21, pagina: 3 },
-            { nombre: "modelo_negocios", x: 16.17, y: 211.22, pagina: 3 },
-            // Página 5 (IA)
-            { nombre: "estrategias_marketing", x: 16.17, y: 44.18, pagina: 4 },
-            { nombre: "gobierno_corporativo", x: 16.17, y: 135.03, pagina: 4 },
-            { nombre: "planificacion_fiscal", x: 16.17, y: 29.91, pagina: 4 },
-            // Página 6 (IA)
-            { nombre: "corto_plazo_desglose", x: 16.17, y: 79.21, pagina: 5 },
-            { nombre: "mediano_plazo_desglose", x: 16.17, y: 211.22, pagina: 5 },
-            // Página 7 (IA)
-            { nombre: "largo_plazo_desglose", x: 16.1, y: 44.18, pagina: 6 },
-            { nombre: "recomendaciones_especificas", x: 16.17, y: 135.03, pagina: 6 },
-            // Página 8 (IA)
-            { nombre: "estrategia_1", x: 10.21, y: 73.41, pagina: 7 },
-            { nombre: "riesgo_1", x: 49.66, y: 73.41, pagina: 7 },
-            { nombre: "mitigacion_1", x: 89.16, y: 73.41, pagina: 7 },
-            { nombre: "estrategia_2", x: 10.321, y: 98.24, pagina: 7 },
-            { nombre: "riesgo_2", x: 49.66, y: 98.24, pagina: 7 },
-            { nombre: "mitigacion_2", x: 89.16, y: 98.24, pagina: 7 },
-            { nombre: "estrategia_3", x: 10.21, y: 123.07, pagina: 7 },
-            { nombre: "riesgo_3", x: 49.66, y: 123.07, pagina: 7 },
-            { nombre: "mitigacion_3", x: 89.16, y: 123.07, pagina: 7 },
-            { nombre: "estrategia_4", x: 10.21, y: 144.28, pagina: 7 },
-            { nombre: "riesgo_4", x: 49.66, y: 144.28, pagina: 7 },
-            { nombre: "mitigacion_4", x: 89.16, y: 144.28, pagina: 7 },
-            { nombre: "estrategia_5", x: 10.21, y: 170.15, pagina: 7 },
-            { nombre: "riesgo_5", x: 49.66, y: 170.15, pagina: 7 },
-            { nombre: "mitigacion_5", x: 89.16, y: 170.15, pagina: 7 },
-            { nombre: "estrategia_6", x: 10.21, y: 199.01, pagina: 7 },
-            { nombre: "riesgo_6", x: 49.66, y: 199.01, pagina: 7 },
-            { nombre: "mitigacion_6", x: 89.16, y: 199.01, pagina: 7 },
-            { nombre: "estrategia_7", x: 10.21, y: 223.2, pagina: 7 },
-            { nombre: "riesgo_7", x: 49.66, y: 223.2, pagina: 7 },
-            { nombre: "mitigacion_7", x: 89.16, y: 223.2, pagina: 7 }
-        ];
-
-        // Escribir los datos en el PDF
-        campos.forEach(campo => {
-            if (datos[campo.nombre]) {
-                const page = pdfDoc.getPages()[campo.pagina];
-                const pageHeight = page.getHeight();
-                page.drawText(datos[campo.nombre], {
-                    x: mmToPt(campo.x),
-                    y: pageHeight - mmToPt(campo.y),
-                    size: 12,
-                    font: font,
-                    color: PDFLib.rgb(0, 0, 0)
-                });
-            }
-        });
-
-        // Descargar el PDF generado
-        const pdfBytes = await pdfDoc.save();
-        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'Diagnostico_Completado.pdf';
-        link.click();
-    }
-
-    // Captura el submit del formulario
-    // Aquí debes obtener la respuesta de la IA antes de llamar a generarPDF
-    // Simulación de llamada a la IA (reemplaza esto por tu integración real)
-    async function obtenerRespuestaIA(datosFormulario) {
-        // Aquí deberías hacer la llamada real a tu API de IA
-        // Simulación de respuesta:
-        return {
-            corto_plazo_1: "Implementar seguro de hombre clave",
-            corto_plazo_2: "Definir plan de sucesión básico",
-            corto_plazo_3: "Optimizar procesos fiscales",
-            mediano_plazo_1: "Desarrollar estrategia de marketing digital",
-            mediano_plazo_2: "Formalizar pacto de socios",
-            mediano_plazo_3: "Diversificar servicios",
-            largo_plazo_1: "Establecer protocolos de gobierno corporativo",
-            largo_plazo_2: "Abrir nueva oficina",
-            largo_plazo_3: "Gestionar riesgos integrales",
-            resumen_ejecutivo: "Envision Life, una consultoría en Blindaje Empresarial con 4 años de antigüedad, se encuentra en una etapa de crecimiento...",
-            modelo_negocios: "Oportunidad: Diversificar la oferta de servicios para reducir la dependencia del seguro de hombre clave...",
-            estrategias_marketing: "Implementar una estrategia de marketing digital (SEO, SEM, redes sociales) para aumentar la visibilidad de la marca y generar leads calificados. Desarrollar contenido de valor sobre blindaje empresarial para atraer clientes potenciales.",
-            gobierno_corporativo: "Formalizar los acuerdos entre socios en un pacto de socios que defina roles y responsabilidades. Establecer protocolos básicos de gobierno corporativo, incluyendo la creación de un consejo asesor.",
-            planificacion_fiscal: "Implementar una planificación fiscal estratégica para optimizar la carga impositiva y mejorar el flujo de efectivo. Establecer un método de compensación claro para directivos y socios.",
-            corto_plazo_desglose: "1. Implementar un seguro de hombre clave para Arturo Flores.\n2. Desarrollar un plan de sucesión básico para Arturo Flores, identificando responsabilidades críticas y documentando procesos clave.\n3. Contratar un contador para realizar un diagnóstico fiscal y diseñar una estrategia de planificación fiscal básica.\n4. Definir el posicionamiento de la empresa frente a la competencia y desarrollar un elevator pitch claro y conciso.",
-            mediano_plazo_desglose: "1. Desarrollar e implementar una estrategia de marketing digital (sitio web, redes sociales, SEO básico).\n2. Formalizar los acuerdos entre socios en un pacto de socios.\n3. Diversificar la oferta de servicios, explorando la posibilidad de ofrecer consultoría en otras áreas del blindaje empresarial.\n4. Capacitar a otro empleado en aspectos básicos de la operación del negocio, para reducir la dependencia de Arturo Flores.\n5. Explorar la posibilidad de contratar a otro agente de seguros, capacitándolo y respaldándolo para diversificar las operaciones y minimizar el riesgo de depender exclusivamente de Arturo Flores.",
-            largo_plazo_desglose: "1. Implementar protocolos de gobierno corporativo más formales (consejo asesor, comités internos).\n2. Desarrollar un modelo de suscripción o membresía para fidelizar clientes.\n3. Abrir una oficina y contratar personal administrativo y de servicio al cliente (según lo planeado).\n4. Implementar una estrategia integral de gestión de riesgos, incluyendo la evaluación de riesgos operativos, financieros y legales.",
-            recomendaciones_especificas: "* Seguro de Hombre Clave:\n* Recomendación: Contratar un corredor de seguros independiente para obtener cotizaciones de diferentes compañías y comparar coberturas y precios.\n* Recomendación: Asegurarse de que la póliza cubra no solo la pérdida de ingresos, sino también los costos asociados a la búsqueda y capacitación de un reemplazo.\n\n* Plan de Sucesión Básico:\n* Recomendación: Documentar los procesos clave del negocio en manuales operativos.\n* Recomendación: Designar a un empleado como 'segundo al mando' y capacitarlo en las responsabilidades críticas de Arturo Flores.\n\n* Estrategia de Marketing Digital:\n* Recomendación: Contratar a un consultor de marketing digital para desarrollar una estrategia personalizada y capacitar al personal interno.\n* Recomendación: Invertir en publicidad online (Google Ads, redes sociales) para aumentar la visibilidad de la marca y generar leads calificados.\n\n* Planificación Fiscal:\n* Recomendación: Reunirse con un contador o asesor fiscal para analizar la situación financiera de la empresa y diseñar una estrategia de planificación fiscal que optimice la carga impositiva.\n\n* Pacto de Socios:\n* Recomendación: Contratar a un abogado especializado en derecho corporativo para redactar un pacto de socios que proteja los intereses de ambos socios y defina claramente sus derechos y responsabilidades.\n\n* Diversificación de Servicios:\n* Recomendación: Investigar el mercado para identificar nuevas oportunidades de servicios en el área de blindaje empresarial.\n* Recomendación: Desarrollar alianzas estratégicas con otras empresas que ofrezcan servicios complementarios.\n\n* Contratación de Agente de Seguros:\n* Recomendación: Ofrecer capacitación y respaldo para que el nuevo agente pueda complementar las operaciones y minimizar el riesgo de depender exclusivamente de Arturo Flores.",
-            estrategia_1: "Formalización Legal",
-            riesgo_1: "Costos inesperados, conflicto entre socios.",
-            mitigacion_1: "Establecer un presupuesto claro y definido, negociar los honorarios con el abogado, fomentar la comunicación y la transparencia entre los socios.",
-            estrategia_2: "Asesoría Fiscal",
-            riesgo_2: "Elección de un asesor fiscal no calificado, incumplimiento de las obligaciones fiscales.",
-            mitigacion_2: "Verificar las credenciales y la experiencia del asesor fiscal, solicitar referencias, revisar los informes y las declaraciones fiscales con atención.",
-            estrategia_3: "Póliza de Hombre Clave",
-            riesgo_3: "Pago de primas elevadas, exclusiones en la póliza.",
-            mitigacion_3: "Comparar diferentes opciones de pólizas, leer cuidadosamente las condiciones de la póliza, consultar con un corredor de seguros.",
-            estrategia_4: "Marketing Digital",
-            riesgo_4: "Resultados lentos, retorno de la inversión bajo.",
-            mitigacion_4: "Establecer objetivos claros y medibles, monitorear el progreso de la campaña, ajustar la estrategia según sea necesario, invertir en formación y capacitación para el equipo de marketing.",
-            estrategia_5: "Branding",
-            riesgo_5: "Imagen de marca inconsistente, falta de diferenciación.",
-            mitigacion_5: "Definir claramente los valores y la propuesta de valor de la empresa, realizar una investigación de mercado para identificar las preferencias de los clientes, crear una guía de estilo para la marca.",
-            estrategia_6: "Manuales de Procedimientos",
-            riesgo_6: "Resistencia al cambio, falta de cumplimiento.",
-            mitigacion_6: "Involucrar a todos los empleados en la elaboración de los manuales, comunicar claramente los beneficios de la estandarización, ofrecer formación y capacitación, monitorear el cumplimiento y realizar ajustes según sea necesario.",
-            estrategia_7: "Definición de Nicho",
-            riesgo_7: "Elección de un nicho no rentable, competencia intensa.",
-            mitigacion_7: "Realizar una investigación de mercado exhaustiva, analizar la rentabilidad potencial del nicho, evaluar la competencia, identificar las necesidades de los clientes."
-        };
-    }
+   
 
     document.getElementById('diagnosisForm').addEventListener('submit', async function(e) {
         e.preventDefault();
