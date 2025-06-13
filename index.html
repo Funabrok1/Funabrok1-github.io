@@ -791,46 +791,6 @@
 
                 manageModalView('clarification');
             }
-            
-            async function downloadReportAsPDF() {
-                const { jsPDF } = window.jspdf;
-                const reportElement = document.getElementById('reportContent');
-                const downloadButton = document.getElementById('downloadPdfBtn');
-                
-                downloadButton.innerText = 'Generando...';
-                downloadButton.disabled = true;
-
-                try {
-                    const doc = new jsPDF({
-                        orientation: 'p',
-                        unit: 'pt',
-                        format: 'a4'
-                    });
-                    
-                    await doc.html(reportElement, {
-                        callback: function (doc) {
-                            doc.save('reporte-diagnostico-empresarial.pdf');
-                        },
-                        margin: [20, 20, 20, 20],
-                        autoPaging: 'slice', // Cambiado para mejorar saltos de página
-                        x: 0,
-                        y: 0,
-                        width: 555, // A4 width in points, adjusted for margins
-                        windowWidth: 800 // An arbitrary but reasonable width
-                    });
-                    
-                    downloadPrompt.classList.add('hidden');
-                    mondayFormContainer.classList.remove('hidden');
-
-                } catch(error) {
-                    console.error("Error al generar PDF:", error);
-                    alert("Ocurrió un error al generar el PDF. Por favor, intente de nuevo.");
-                } finally {
-                    downloadButton.innerText = 'Descargar PDF';
-                    downloadButton.disabled = false;
-                }
-            }
-
 
             // --- Main Form Submission ---
             form.addEventListener('submit', async (e) => {
@@ -978,7 +938,6 @@
             });
             prevBtn.addEventListener('click', () => { if (currentStep > 0) { currentStep--; showStep(currentStep); } });
             closeModalBtn.addEventListener('click', () => { reportModal.classList.add('hidden'); });
-            downloadPdfBtn.addEventListener('click', downloadReportAsPDF);
             
             const rangeInput = document.getElementById('nivel_formalidad_corporativa');
             if (rangeInput) {
@@ -1292,6 +1251,18 @@
         page.drawText(label, { x: x1, y, size: fontSize, font, color });
         page.drawText(value, { x: x2, y, size: fontSize, font, color });
         y -= yStep;
+      });
+    }
+
+    // === Helper para escribir párrafos con título y wrap ===
+    function drawParagraph(page, title, text, x, y, maxWidth, font, fontSize, color) {
+      // Título
+      page.drawText(title, { x, y, size: fontSize + 2, font, color });
+      // Texto (con wrap)
+      const yText = y - (fontSize + 8);
+      const lines = wrapText(text, font, fontSize, maxWidth);
+      lines.forEach((line, idx) => {
+        page.drawText(line, { x, y: yText - idx * (fontSize + 2), size: fontSize, font, color });
       });
     }
     </script>
