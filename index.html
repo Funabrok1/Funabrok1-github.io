@@ -840,9 +840,10 @@
                         }
                     }
 
-            
-                    }
-                
+                    diagnosisSummaryOutput.innerHTML = generateSummaryHtml(data);
+                    generateTimeline(timelineData);
+                    aiAnalysisOutput.innerHTML = formatAIResponse(analysisText);
+                    manageModalView('report');
 
                 } catch (err) {
                     console.error("Error generating report:", err);
