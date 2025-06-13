@@ -828,17 +828,51 @@
                         }
                     }
 
-                    // Combina los datos del formulario y los de la IA
-                    datosFinalesParaPDF = { ...data, ...datosIA };
-
-                    // Muestra el reporte en pantalla
-                    diagnosisSummaryOutput.innerHTML = generateSummaryHtml(data);
-                    generateTimeline(timelineData);
-                    aiAnalysisOutput.innerHTML = formatAIResponse(analysisText);
-                    manageModalView('report');
-
-                    // Genera y descarga el PDF automáticamente con los datos correctos
+                    // === FUNCIÓN DE MAPEO DE DATOS FORMULARIO + IA ===
+                    function mapFormAndIAData(formData, iaData) {
+                      return {
+                        NOMBRE_EMPRESA: iaData.NOMBRE_EMPRESA || formData.nombre_empresa || '',
+                        SECTOR: iaData.SECTOR || formData.sector || '',
+                        DESCRIPCION_NEGOCIO: iaData.DESCRIPCION_NEGOCIO || formData.descripcion_negocio || '',
+                        ROL_ACTUAL: iaData.ROL_ACTUAL || formData.puesto_usuario || '',
+                        ANTIGUEDAD_NEGOCIO: iaData.ANTIGUEDAD_NEGOCIO || formData.antiguedad_empresa || '',
+                        NUMERO_EMPLEADOS: iaData.NUMERO_EMPLEADOS || formData.numero_empleados || '',
+                        MAYOR_RETO_SUPERADO: iaData.MAYOR_RETO_SUPERADO || formData.mayor_reto_superado || '',
+                        HITO_MAS_IMPORTANTE: iaData.HITO_MAS_IMPORTANTE || formData.hito_mas_importante || '',
+                        NOMBRE_CONTACTO: iaData.NOMBRE_CONTACTO || formData.nombre_contacto || '',
+                        EMAIL_CONTACTO: iaData.EMAIL_CONTACTO || formData.email_contacto || '',
+                        TELEFONO_CONTACTO: iaData.TELEFONO_CONTACTO || formData.telefono_contacto || '',
+                        ESTRATEGIAS_MARKETING: iaData.ESTRATEGIAS_MARKETING || formData.estrategias_marketing || '',
+                        TIPO_EMPRESA: iaData.TIPO_EMPRESA || formData.tipo_empresa || '',
+                        NUMERO_SOCIOS: iaData.NUMERO_SOCIOS || formData.numero_socios || '',
+                        ACUERDOS_ENTRE_SOCIOS: iaData.ACUERDOS_ENTRE_SOCIOS || formData.acuerdos_entre_socios || '',
+                        SEPARACION_PATRIMONIO: iaData.SEPARACION_PATRIMONIO || formData.separacion_patrimonio || '',
+                        SEGURO_RESPONSABILIDAD_CIVIL: iaData.SEGURO_RESPONSABILIDAD_CIVIL || formData.seguro_responsabilidad || '',
+                        ESTRUCTURAS_HOLDING: iaData.ESTRUCTURAS_HOLDING || formData.estructura_holding || '',
+                        IMPACTO_AUSENCIA_PERSONA_CLAVE: iaData.IMPACTO_AUSENCIA_PERSONA_CLAVE || formData.impacto_ausencia_persona_clave || '',
+                        PERSONAS_INDISPENSABLES: iaData.PERSONAS_INDISPENSABLES || formData.lista_personas_clave || '',
+                        PLAN_SUCESION_CONTINGENCIA: iaData.PLAN_SUCESION_CONTINGENCIA || formData.plan_contingencia_existente || '',
+                        PRESTACIONES_EMPLEADOS: iaData.PRESTACIONES_EMPLEADOS || formData.tipo_prestaciones_empleados || '',
+                        GESTION_ROTACION_TALENTO: iaData.GESTION_ROTACION_TALENTO || formData.gestion_rotacion_personal || '',
+                        SEGURO_PERSONAS_CLAVE: iaData.SEGURO_PERSONAS_CLAVE || formData.seguro_personas_clave || '',
+                        PREOCUPACIONES_CONTINUIDAD: iaData.PREOCUPACIONES_CONTINUIDAD || formData.preocupaciones_continuidad || '',
+                        SITUACION_UTILIDAD_FISCAL: iaData.SITUACION_UTILIDAD_FISCAL || formData.situacion_utilidad_fiscal || '',
+                        RESUMEN_EJECUTIVO: iaData.RESUMEN_EJECUTIVO || '',
+                        MODELO_NEGOCIOS: iaData.MODELO_NEGOCIOS || '',
+                        PLAN_ACCION_PRIORIZADO: iaData.PLAN_ACCION_PRIORIZADO || '',
+                        RECOMENDACIONES_ESPECIFICAS: iaData.RECOMENDACIONES_ESPECIFICAS || '',
+                        // Agrega aquí más campos si los usas en fillPdf
+                      };
+                    }
+                    // ... existing code ...
+                    // En el submit principal, usa la función de mapeo antes de llamar a fillPdf:
+                    // Reemplaza:
+                    // datosFinalesParaPDF = { ...data, ...datosIA };
+                    // await fillPdf(datosFinalesParaPDF);
+                    // Por:
+                    datosFinalesParaPDF = mapFormAndIAData(data, datosIA);
                     await fillPdf(datosFinalesParaPDF);
+                    // ... existing code ...
 
                 } catch (err) {
                     console.error("Error generating report:", err);
@@ -977,238 +1011,11 @@
             });
         });
     </script>
-
-    <!-- ================== GENERACIÓN DE PDF DINÁMICO CON PDF-LIB.js (VERSIÓN PARA NAVEGADOR) ================== -->
-    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
     <script>
-    const MM_TO_PT = 2.83465;
-    const A4_HEIGHT_MM = 297;
-
-    function mmToPt(mm) { return mm * MM_TO_PT; }
-    function yFromTop(mm) { return mmToPt(A4_HEIGHT_MM - mm); }
-
-    async function fillPdf(data) {
-      const { PDFDocument, StandardFonts, rgb } = PDFLib;
-      const pdfDoc = await PDFDocument.create();
-      const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-      // Crear 8 páginas tamaño A4
-      for (let i = 0; i < 8; i++) {
-        pdfDoc.addPage([mmToPt(210), mmToPt(297)]);
-      }
-
-      // === LOGO EN LA PORTADA (centrado y tamaño visual similar al HTML) ===
-      const logoUrl = 'https://i.ibb.co/3y2zF9hq/imagen.jpg'; // Logo con fondo blanco
-      const logoImageBytes = await fetch(logoUrl).then(res => res.arrayBuffer());
-      const logoImage = await pdfDoc.embedJpg(logoImageBytes);
-      let page = pdfDoc.getPages()[0];
-      // Tamaño máximo: ancho 180px (≈63.5mm), altura proporcional
-      const maxLogoWidth = mmToPt(63.5); // 180px ≈ 63.5mm
-      const logoDims = logoImage.scaleToFit(maxLogoWidth, mmToPt(40)); // Altura máxima 40mm aprox
-      const pageWidth = mmToPt(210);
-      const logoX = (pageWidth - logoDims.width) / 2;
-      const logoY = yFromTop(30); // 30mm desde arriba
-      page.drawImage(logoImage, { x: logoX, y: logoY, width: logoDims.width, height: logoDims.height });
-
-      function drawWrappedText(page, text, x, y, maxWidth, maxLines, font, fontSize, color) {
-        if (!text) return;
-        const lines = wrapText(text, font, fontSize, maxWidth);
-        let linesToDraw = lines;
-        if (lines.length > maxLines) {
-          linesToDraw = lines.slice(0, maxLines);
-          linesToDraw[maxLines - 1] = linesToDraw[maxLines - 1].replace(/\s+$/, '') + '...';
-        }
-        linesToDraw.forEach((line, idx) => {
-          page.drawText(line, { x, y: y - idx * (fontSize + 2), size: fontSize, font, color });
-        });
-      }
-
-      // === HOJA 1: Ficha técnica (dos columnas) ===
-      // Empieza la ficha técnica debajo del logo, dejando espacio
-      const fichaStartY = logoY - logoDims.height - mmToPt(10); // 10mm de espacio debajo del logo
-      page = pdfDoc.getPages()[0];
-      drawFicha(page, [
-        ['Nombre de la Empresa :', data.NOMBRE_EMPRESA || ''],
-        ['Sector :', data.SECTOR || ''],
-        ['Descripción del Negocio :', data.DESCRIPCION_NEGOCIO || ''],
-        ['Rol o posición actual :', data.ROL_ACTUAL || ''],
-        ['Antigüedad de la empresa :', data.ANTIGUEDAD_NEGOCIO || ''],
-        ['Número de empleados :', data.NUMERO_EMPLEADOS || ''],
-        ['Mayor reto superado :', data.MAYOR_RETO_SUPERADO || ''],
-        ['Mayor aprendizaje o hito :', data.HITO_MAS_IMPORTANTE || ''],
-        ['Nombre de Contacto :', data.NOMBRE_CONTACTO || ''],
-        ['Email de Contacto :', data.EMAIL_CONTACTO || ''],
-        ['Teléfono de Contacto :', data.TELEFONO_CONTACTO || ''],
-        ['Estrategias de marketing :', data.ESTRATEGIAS_MARKETING || '']
-      ], mmToPt(40), mmToPt(90), fichaStartY, 22, font, 12, rgb(0,0,0));
-
-      // === HOJA 2: Ficha técnica (dos columnas) ===
-      page = pdfDoc.getPages()[1];
-      drawFicha(page, [
-        ['Tipo de empresa :', data.TIPO_EMPRESA || ''],
-        ['Número de socios :', data.NUMERO_SOCIOS || ''],
-        ['Acuerdos formales entre socios :', data.ACUERDOS_ENTRE_SOCIOS || ''],
-        ['Separación de patrimonio :', data.SEPARACION_PATRIMONIO || ''],
-        ['Seguro de responsabilidad civil :', data.SEGURO_RESPONSABILIDAD_CIVIL || ''],
-        ['Estructuras de holding :', data.ESTRUCTURAS_HOLDING || ''],
-        ['Impacto por ausencia de persona clave :', data.IMPACTO_AUSENCIA_PERSONA_CLAVE || ''],
-        ['Personas indispensable para la operación :', data.PERSONAS_INDISPENSABLES || ''],
-        ['Plan de sucesión o fondo de contingencia :', data.PLAN_SUCESION_CONTINGENCIA || ''],
-        ['Prestaciones a empleados :', data.PRESTACIONES_EMPLEADOS || ''],
-        ['Gestión de rotación de talento :', data.GESTION_ROTACION_TALENTO || ''],
-        ['Seguro de personas clave :', data.SEGURO_PERSONAS_CLAVE || ''],
-        ['Preocupaciones sobre continuidad :', data.PREOCUPACIONES_CONTINUIDAD || ''],
-        ['Situación de la utilidad fiscal :', data.SITUACION_UTILIDAD_FISCAL || '']
-      ], mmToPt(40), mmToPt(90), yFromTop(40), 22, font, 12, rgb(0,0,0));
-
-      // === HOJA 3: Línea de tiempo visual ===
-      page = pdfDoc.getPages()[2];
-      // Aquí deberías llamar a tu función de línea de tiempo visual, por ejemplo:
-      // drawTimeline(page, data.LINEA_TIEMPO, ...)
-
-      // === HOJAS 4-7: Texto corrido con títulos ===
-      page = pdfDoc.getPages()[3];
-      drawParagraph(page, 'Diagnóstico Interpretado (Resumen Ejecutivo)', data.RESUMEN_EJECUTIVO || '', mmToPt(40), yFromTop(40), mmToPt(130), font, 12, rgb(0,0,0));
-      page = pdfDoc.getPages()[4];
-      drawParagraph(page, 'Modelo de Negocios', data.MODELO_NEGOCIOS || '', mmToPt(40), yFromTop(40), mmToPt(130), font, 12, rgb(0,0,0));
-      page = pdfDoc.getPages()[5];
-      drawParagraph(page, 'Plan de Acción Priorizado en Etapas', data.PLAN_ACCION_PRIORIZADO || '', mmToPt(40), yFromTop(40), mmToPt(130), font, 12, rgb(0,0,0));
-      page = pdfDoc.getPages()[6];
-      drawParagraph(page, 'Recomendaciones Específicas', data.RECOMENDACIONES_ESPECIFICAS || '', mmToPt(40), yFromTop(40), mmToPt(130), font, 12, rgb(0,0,0));
-
-      // === HOJA 8: Matriz de riesgos y pie de página ===
-      page = pdfDoc.getPages()[7];
-      // Aquí deberías llamar a tu función de matriz de riesgos, por ejemplo:
-      // drawRiskMatrix(page, data.MATRIZ_RIESGOS_MITIGACIONES, ...)
-      // Pie de página
-      const pieUrl = 'https://i.ibb.co/Mw4JL0M/Blindaje-empresarial-2.png';
-      const pieImageBytes = await fetch(pieUrl).then(res => res.arrayBuffer());
-      const pieImage = await pdfDoc.embedPng(pieImageBytes); // Cambia a embedPng
-      page.drawImage(pieImage, { x: mmToPt(10), y: mmToPt(10), width: mmToPt(190), height: mmToPt(25) });
-
-      // Descargar el PDF
-      const pdfBytes = await pdfDoc.save();
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'diagnostico-empresarial.pdf';
-      link.click();
-    }
-
-    // Ejemplo de uso:
-    // fillPdf({
-    //   NOMBRE_EMPRESA: 'Envision Life',
-    //   NOMBRE_CONTACTO: 'Arturo Flores',
-    //   ...
-    // });
-    </script>
-    <!-- ================== FIN PDF-LIB.js ================== -->
-
-    <!-- ================== PROMPT SUGERIDO PARA LA IA (PARA GENERAR EL JSON DE CAMPOS DEL PDF) ================== -->
-    <!--
-    Eres un asistente experto en diagnóstico empresarial. Analiza la información proporcionada y responde únicamente con un bloque JSON que contenga los siguientes campos, usando exactamente estos nombres de variable y sin agregar ningún texto adicional fuera del bloque JSON:
-
-    {
-      "NOMBRE_EMPRESA": "",
-      "NOMBRE_CONTACTO": "",
-      "ROL_ACTUAL": "",
-      "SECTOR": "",
-      "NUMERO_EMPLEADOS": "",
-      "DESCRIPCION_NEGOCIO": "",
-      "PERSONAS_INDISPENSABLES": "",
-      "ANTIGUEDAD_NEGOCIO": "",
-      "TIPO_SOCIEDAD": "",
-      "MONTO_PROYECTOS": "",
-      "CORTO_PLAZO_1": "",
-      "CORTO_PLAZO_2": "",
-      "CORTO_PLAZO_3": "",
-      "MEDIANO_PLAZO_1": "",
-      "MEDIANO_PLAZO_2": "",
-      "MEDIANO_PLAZO_3": "",
-      "LARGO_PLAZO_1": "",
-      "LARGO_PLAZO_2": "",
-      "LARGO_PLAZO_3": "",
-      "RESUMEN_EJECUTIVO": "",
-      "MODELO_NEGOCIOS": "",
-      "ESTRATEIGAS_MARKETING": "",
-      "GOBIERNO_CORPORATIVO": "",
-      "PLANIFICACION_FISCAL": "",
-      "CORTO_PLAZO_DESGLOSE": "",
-      "MEDIANO_PLAZO_DESGLOSE": "",
-      "LARGO_PLAZO_DESGLOSE": "",
-      "RECOMENDACIONES_ESPECIFICAS": "",
-      "ESTRATEGIA_1": "",
-      "RIESGO_1": "",
-      "MITIGACION_1": "",
-      "ESTRATEGIA_2": "",
-      "RIESGO_2": "",
-      "MITIGACION_2": "",
-      "ESTRATEGIA_3": "",
-      "RIESGO_3": "",
-      "MITIGACION_3": "",
-      "ESTRATEGIA_4": "",
-      "RIESGO_4": "",
-      "MITIGACION_4": "",
-      "ESTRATEGIA_5": "",
-      "RIESGO_5": "",
-      "MITIGACION_5": "",
-      "ESTRATEGIA_6": "",
-      "RIESGO_6": "",
-      "MITIGACION_6": "",
-      "ESTRATEGIA_7": "",
-      "RIESGO_7": "",
-      "MITIGACION_7": ""
-    }
-    -->
-    <!-- ================== FIN PROMPT SUGERIDO PARA LA IA ================== -->
-
-    <script>
-   
-
-    document.getElementById('diagnosisForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        // Recoge los datos del formulario
-        const formData = new FormData(this);
-        const datosFormulario = {};
-        formData.forEach((value, key) => datosFormulario[key] = value);
-
-        // Muestra el loader
-        document.getElementById('loader').style.display = 'block';
-
-        try {
-            // Aquí deberías obtener la respuesta de la IA y combinarla con los datos del formulario
-            // Por ejemplo:
-            // const respuestaIA = await getAIResponse(prompt);
-            // const datosFinales = { ...datosFormulario, ...respuestaIA };
-            // await fillPdf(datosFinales);
-            // Para pruebas, puedes llamar directamente a fillPdf(datosFormulario)
-            await fillPdf(datosFormulario);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            document.getElementById('loader').style.display = 'none';
-        }
-    });
     </script>
 
     <script>
-    // Función para hacer wrap de texto en PDF-Lib
-    function wrapText(text, font, fontSize, maxWidth) {
-      const words = text.split(' ');
-      let lines = [];
-      let currentLine = '';
-      words.forEach(word => {
-        const testLine = currentLine ? currentLine + ' ' + word : word;
-        const testWidth = font.widthOfTextAtSize(testLine, fontSize);
-        if (testWidth > maxWidth && currentLine) {
-          lines.push(currentLine);
-          currentLine = word;
-        } else {
-          currentLine = testLine;
-        }
-      });
-      if (currentLine) lines.push(currentLine);
-      return lines;
-    }
+    
     </script>
 
     <script>
@@ -1288,6 +1095,44 @@
           fillPdf(datosFormulario);
         }
       });
+    }
+    </script>
+
+    <!-- Agrego los scripts necesarios para html2canvas y jsPDF -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+    // Nueva función para capturar el reporte y generar el PDF
+    async function generarPDFDesdeBurbuja() {
+      const reportElement = document.getElementById('reportContent');
+      if (!reportElement) {
+        alert('No se encontró el reporte para exportar.');
+        return;
+      }
+      // Asegúrate de que el contenido esté visible antes de capturarlo
+      reportElement.classList.remove('hidden');
+      // Captura el div completo como imagen
+      const canvas = await html2canvas(reportElement, { backgroundColor: '#fff', scale: 2 });
+      const imgData = canvas.toDataURL('image/png');
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      // Conversión px a mm
+      const pdfWidth = imgWidth * 0.264583;
+      const pdfHeight = imgHeight * 0.264583;
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({
+        orientation: pdfWidth > pdfHeight ? 'l' : 'p',
+        unit: 'mm',
+        format: [pdfWidth, pdfHeight]
+      });
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save('reporte-diagnostico.pdf');
+    }
+    // Asigna la función al botón de descarga del PDF
+    const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+    if (downloadPdfBtn) {
+      downloadPdfBtn.onclick = generarPDFDesdeBurbuja;
     }
     </script>
 </body>
