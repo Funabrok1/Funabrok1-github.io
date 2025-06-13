@@ -552,6 +552,26 @@
                 'proyectos_futuros_empresa': 'Proyectos importantes para los próximos 5-10 años', 'metodo_fondeo_proyectos': 'Método de fondeo para proyectos', 'reservas_empresariales': 'Existencia de fondos o reservas empresariales'
             };
 
+            // PROMPT 1: Diagnóstico interpretado y oportunidades estratégicas
+            function generatePrompt1(data) {
+                let instructions = `Eres un consultor experto en negocios, marketing, gobierno corporativo, fiscalidad e impuestos, y estrategias de seguros.\nAnaliza el siguiente diagnóstico y responde SOLO con:\n1. Diagnóstico interpretado (resumen ejecutivo, lenguaje técnico accesible).\n2. Identificación de oportunidades estratégicas en:\n   - Modelo de negocio\n   - Estrategia de marketing\n   - Gobierno corporativo\n   - Planificación fiscal e impositiva\n   - Estrategia de seguros (hombre clave / GMC)\n\nDiagnóstico:\n`;
+                let diagnosisData = "\n";
+                for (const key in fieldLabels) {
+                    if (data[key]) { diagnosisData += `- **${fieldLabels[key]}:** ${data[key]}\n`; }
+                }
+                return `${instructions}${diagnosisData}`;
+            }
+
+            // PROMPT 2: Plan de acción priorizado
+            function generatePrompt2(data, resumenAnterior) {
+                return `Con base en el siguiente análisis, genera un plan de acción priorizado en etapas (corto, mediano y largo plazo).\n\nAnálisis previo:\n${resumenAnterior}`;
+            }
+
+            // PROMPT 3: Recomendaciones específicas, riesgos y mitigaciones
+            function generatePrompt3(data, resumenAnterior, planAccion) {
+                return `Con base en el siguiente análisis y plan de acción, proporciona:\n1. Recomendaciones específicas para implementar cada propuesta estratégica.\n2. Riesgos asociados a cada estrategia y cómo mitigarlos.\n\nAnálisis previo:\n${resumenAnterior}\n\nPlan de acción:\n${planAccion}`;
+            }
+
             function generateGeminiPrompt(data) {
                 let instructions = `Eres un consultor experto en negocios, estrategias de marketing, gobierno corporativo, fiscalidad, impuestos y diseño de estrategias de seguros utilizando herramientas como pólizas de hombre clave y seguros de gastos médicos colectivos. A partir de un diagnóstico que te compartiré, quiero que realices un análisis integral y una recomendación personalizada que incluya las siguientes secciones:\n\n1. Diagnóstico interpretado (resumen ejecutivo con lenguaje técnico accesible).\n2. Identificación de oportunidades estratégicas en las áreas de:\n   - Modelo de negocio\n   - Estrategia de marketing\n   - Gobierno corporativo\n   - Planificación fiscal e impositiva\n   - Estrategia de seguros (hombre clave / GMC)\n3. Plan de acción priorizado en etapas (corto, mediano y largo plazo).\n4. Recomendaciones específicas para implementar cada propuesta estratégica.\n5. Riesgos y mitigaciones asociados a cada estrategia.\n\nAntes de responder, piensa paso a paso cómo se interrelacionan las áreas y cómo pueden fortalecerse mutuamente. Usa un lenguaje profesional, con términos de negocios y enfoque consultivo. No hagas suposiciones sin sustento en el diagnóstico que te voy a proporcionar. Si necesitas más información, haz preguntas específicas antes de emitir recomendaciones.`;
                 
