@@ -1283,5 +1283,32 @@
     // Ahora puedes usar 'matriz' y 'timeline' para llenar el PDF
     // ... código existente ...
     </script>
+
+    <script>
+    // === Helper para ficha técnica en dos columnas ===
+    function drawFicha(page, pares, x1, x2, yStart, yStep, font, fontSize, color) {
+      let y = yStart;
+      pares.forEach(([label, value]) => {
+        page.drawText(label, { x: x1, y, size: fontSize, font, color });
+        page.drawText(value, { x: x2, y, size: fontSize, font, color });
+        y -= yStep;
+      });
+    }
+    </script>
+
+    <script>
+    // Asignar evento al botón Descargar PDF del modal para llamar a fillPdf con los datos actuales
+    const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+    if (downloadPdfBtn) {
+      downloadPdfBtn.addEventListener('click', () => {
+        // Obtener los datos actuales del formulario
+        const form = document.getElementById('diagnosisForm');
+        const formData = new FormData(form);
+        const datosFormulario = {};
+        formData.forEach((value, key) => datosFormulario[key] = value);
+        fillPdf(datosFormulario);
+      });
+    }
+    </script>
 </body>
 </html>
