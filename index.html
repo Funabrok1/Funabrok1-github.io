@@ -1077,7 +1077,7 @@
       // Pie de página
       const pieUrl = 'https://i.ibb.co/BKsp7PvR/Blindaje-empresarial-2.webp';
       const pieImageBytes = await fetch(pieUrl).then(res => res.arrayBuffer());
-      const pieImage = await pdfDoc.embedPng(pieImageBytes);
+      const pieImage = await pdfDoc.embedJpg(pieImageBytes);
       page.drawImage(pieImage, { x: mmToPt(10), y: mmToPt(10), width: mmToPt(190), height: mmToPt(25) });
 
       // Descargar el PDF
