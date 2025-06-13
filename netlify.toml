@@ -1,0 +1,12 @@
+<<<<<<< HEAD
+[functions]
+  directory = "netlify/functions"
+
+
+
+
+
+=======
+ [functions]
+     directory = "netlify/functions"
+>>>>>>> 8fdfcb7 (Agrego netlify.toml para asegurar deploy de funciones)
