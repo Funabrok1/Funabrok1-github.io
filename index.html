@@ -864,15 +864,7 @@
                         // Agrega aquí más campos si los usas en fillPdf
                       };
                     }
-                    // ... existing code ...
-                    // En el submit principal, usa la función de mapeo antes de llamar a fillPdf:
-                    // Reemplaza:
-                    // datosFinalesParaPDF = { ...data, ...datosIA };
-                    // await fillPdf(datosFinalesParaPDF);
-                    // Por:
-                    datosFinalesParaPDF = mapFormAndIAData(data, datosIA);
-                    await fillPdf(datosFinalesParaPDF);
-                    // ... existing code ...
+                
 
                 } catch (err) {
                     console.error("Error generating report:", err);
@@ -1011,12 +1003,71 @@
             });
         });
     </script>
+
+   
+
+    <!-- ================== PROMPT SUGERIDO PARA LA IA (PARA GENERAR EL JSON DE CAMPOS DEL PDF) ================== -->
+    <!--
+    Eres un asistente experto en diagnóstico empresarial. Analiza la información proporcionada y responde únicamente con un bloque JSON que contenga los siguientes campos, usando exactamente estos nombres de variable y sin agregar ningún texto adicional fuera del bloque JSON:
+
+    {
+      "NOMBRE_EMPRESA": "",
+      "NOMBRE_CONTACTO": "",
+      "ROL_ACTUAL": "",
+      "SECTOR": "",
+      "NUMERO_EMPLEADOS": "",
+      "DESCRIPCION_NEGOCIO": "",
+      "PERSONAS_INDISPENSABLES": "",
+      "ANTIGUEDAD_NEGOCIO": "",
+      "TIPO_SOCIEDAD": "",
+      "MONTO_PROYECTOS": "",
+      "CORTO_PLAZO_1": "",
+      "CORTO_PLAZO_2": "",
+      "CORTO_PLAZO_3": "",
+      "MEDIANO_PLAZO_1": "",
+      "MEDIANO_PLAZO_2": "",
+      "MEDIANO_PLAZO_3": "",
+      "LARGO_PLAZO_1": "",
+      "LARGO_PLAZO_2": "",
+      "LARGO_PLAZO_3": "",
+      "RESUMEN_EJECUTIVO": "",
+      "MODELO_NEGOCIOS": "",
+      "ESTRATEIGAS_MARKETING": "",
+      "GOBIERNO_CORPORATIVO": "",
+      "PLANIFICACION_FISCAL": "",
+      "CORTO_PLAZO_DESGLOSE": "",
+      "MEDIANO_PLAZO_DESGLOSE": "",
+      "LARGO_PLAZO_DESGLOSE": "",
+      "RECOMENDACIONES_ESPECIFICAS": "",
+      "ESTRATEGIA_1": "",
+      "RIESGO_1": "",
+      "MITIGACION_1": "",
+      "ESTRATEGIA_2": "",
+      "RIESGO_2": "",
+      "MITIGACION_2": "",
+      "ESTRATEGIA_3": "",
+      "RIESGO_3": "",
+      "MITIGACION_3": "",
+      "ESTRATEGIA_4": "",
+      "RIESGO_4": "",
+      "MITIGACION_4": "",
+      "ESTRATEGIA_5": "",
+      "RIESGO_5": "",
+      "MITIGACION_5": "",
+      "ESTRATEGIA_6": "",
+      "RIESGO_6": "",
+      "MITIGACION_6": "",
+      "ESTRATEGIA_7": "",
+      "RIESGO_7": "",
+      "MITIGACION_7": ""
+    }
+    -->
+    <!-- ================== FIN PROMPT SUGERIDO PARA LA IA ================== -->
+
     <script>
     </script>
 
-    <script>
-    
-    </script>
+    <script
 
     <script>
     // Función para extraer la tabla Markdown a array de objetos
